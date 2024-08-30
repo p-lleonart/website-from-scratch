@@ -1,0 +1,12 @@
+{
+    "name": "website-from-scratch",
+    "author": "Pascal LLEONART",
+    "main": "src/main.ts",
+    "scripts": {
+        "start": "tsc && node dist/main.js"
+    },
+    "devDependencies": {
+        "@types/node": "^22.5.1",
+        "typescript": "^5.5.4"
+    }
+}

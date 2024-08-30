@@ -1,0 +1,30 @@
+{
+    "jar": "application/java-archive",
+    "ogg": "application/ogg",
+    "pdf": "application/pdf",
+    "xhtml": "application/xhtml+xml",
+    "json": "application/json",
+    "app/xml": "application/xml",
+    "zip": "application/zip",
+
+    "gif": "image/gif",
+    "jpeg": "image/jpeg",
+    "png": "image/png",
+    "tiff": "image/tiff",
+    "svg": "image/svg+xml",
+
+    "multipart/mixed": "multipart/mixed",
+    "multipart/alternative": "multipart/alternative",
+    "multipart/related": "multipart/related (using by MHTML (HTML mail).)",
+    "multipart/form-data": "multipart/form-data",
+
+    "css": "text/css",
+    "csv": "text/csv",
+    "html": "text/html",
+    "js": "text/javascript",
+    "txt": "text/plain",
+    "xml": "text/xml",
+
+    "mpeg": "video/mpeg",
+    "mp4": "video/mp4"
+}
