@@ -7,9 +7,15 @@
     <link rel="stylesheet" href="/app.css">
 </head>
 <body>
-    <p>Thanks for your message</p>
+    <h1>Thanks for your message, {{name}}</h1>
 
-    <!-- TODO: insert msg content here -->
+    <p>Your message: {{message}}</p>
+
+    <p>Messages sent: {{messagesSent}}</p>
+    
+    {{#include src/templates/component.html}}
+        <p>Couldn't load component</p>
+    {{/include}}
      
     <script src="/app.js"></script>
 </body>

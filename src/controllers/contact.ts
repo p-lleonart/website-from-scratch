@@ -1,24 +1,29 @@
-import { readFile } from "fs/promises"
-
-import { getCookie, setCookie } from "../cookies"
-import { getPostBody } from "../helpers/http"
 import { IncomingMessage } from "http"
-import { render } from "../helpers/http"
+
+import { getCookie, setCookie } from "../helpers/cookies"
+import { getPostBody } from "../helpers/http"
+import { setResponse } from "../helpers/http"
 import { Response } from "../types"
+import { render } from "../template-parser"
 
 
 export class ContactController {
     static async view(req: IncomingMessage, response: Response): Promise<Response> {
-        return render(response, {
+        return setResponse(response, {
             contentType: "text/html",
-            body: await readFile("./src/templates/contact.html", "utf8")
+            body: render("./src/templates/contact.html", {
+                name: "john doe",
+                message: "hello, world!",
+                messangesSent: 3,
+                msgs: ["hi", "hi1", "hi2"]
+            })
         })
     }
 
     static async store(req: IncomingMessage, response: Response): Promise<Response> {
         const message = await getPostBody(req)
         
-        console.log(`message received (from ${message.name}): ${message.content}`)
+        console.info(`message received (from ${message.name}): ${message.content}`)
 
         const cookie = getCookie(req, "MessagesSent")
         const messagesSent = cookie
@@ -30,9 +35,14 @@ export class ContactController {
             value: `${messagesSent + 1}`
         })
 
-        return render(response, {
+        return setResponse(response, {
             contentType: "text/html",
-            body: await readFile("./src/templates/contact-thanks.html", "utf8"),
+            body: render('./src/templates/contact-thanks.html', {
+                name: message.name,
+                message: message.content,
+                messagesSent: messagesSent + 1,
+                isMessagesSentGreaterThan3: messagesSent + 1 > 3
+            }),
             statusCode: 201  // 201 - Created
         })
     }

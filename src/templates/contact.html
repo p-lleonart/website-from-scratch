@@ -13,6 +13,21 @@
         <textarea name="content" placeholder="Your message"></textarea>
         <button type="submit">Send</button>
     </form>
+
+    <p>Your name: {{name}}</p>
+
+    <p>Your message: {{message}}</p>
+
+    {{#if messagesSent}}
+        <p>You sent us a lot of messages ({{messagesSent}}), thanks</p>
+    {{/if}}
+
+    {{#if msgs}}
+        {{#for msg in msgs}}
+            <p>{{msg}}</p>
+        {{/for}}
+    {{/if}}
+
     <script src="/app.js"></script>
 </body>
 </html>

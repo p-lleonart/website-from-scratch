@@ -3,14 +3,14 @@ import { readFile } from "fs/promises"
 
 import { ContactController } from "./controllers/contact"
 import { CoreController } from "./controllers/core"
-import { render } from "./helpers/http"
+import { setResponse } from "./helpers/http"
 import { Response, Route } from "./types"
 
 
 export const ROUTES: {[key: string]: Route} = {
     "GET:/": {
         callback: async (req: IncomingMessage, response: Response) => {
-            return render(response, {
+            return setResponse(response, {
                 contentType: "text/html",
                 body: await readFile("./src/templates/index.html", "utf8")
             })

@@ -1,6 +1,6 @@
 {
     "name": "website-from-scratch",
-    "author": "Pascal LLEONART",
+    "author": "Pascal Lleonart",
     "main": "src/main.ts",
     "scripts": {
         "start": "tsc && node dist/main.js"

@@ -3,7 +3,7 @@ import { createServer, IncomingMessage, ServerResponse } from "http"
 import { ErrorsController } from "./errors"
 import { Response } from "./types"
 import { ROUTES } from "./routes"
-import { setAssetsRoutes } from "./assets-handler"
+import { setAssetsRoutes } from "./helpers/assets"
 
 
 setAssetsRoutes(ROUTES)
