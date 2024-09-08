@@ -1,4 +1,6 @@
 import { IncomingMessage } from "http"
+import { parse } from "querystring"
+import { ModelObject } from "../database/types"
 
 
 /**
@@ -49,8 +51,8 @@ export function parseCookieData(raw: string | undefined): {[key: string]: string
  * @param raw 
  * @returns 
  */
-export function parseRequestData(raw: string): {[key: string]: string} {
-    return parseBase("&", "=", raw)
+export function parseRequestData(raw: string): ModelObject {
+    return parse(raw) as ModelObject
 }
 
 export async function extractPostRequestData(req: IncomingMessage): Promise<string> {

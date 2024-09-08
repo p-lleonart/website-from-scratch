@@ -9,7 +9,11 @@ import { setAssetsRoutes } from "./helpers/assets"
 setAssetsRoutes(ROUTES)
 
 createServer(async (req: IncomingMessage, res: ServerResponse) => {
-    const endpoint = `${req.method}:${req.url}`
+    const url = new URL(req.url ? req.url : '/', `http://${req.headers.host}`)
+
+    /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
+    const endpoint = `${req.method}:${url.pathname[-1] === "/" ? url.pathname.slice(0, -1) : url.pathname}`
+    
     let response: Response = {
         statusCode: 200,
         headers: {},

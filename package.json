@@ -3,10 +3,14 @@
     "author": "Pascal Lleonart",
     "main": "src/main.ts",
     "scripts": {
-        "start": "tsc && node dist/main.js"
+        "start": "tsc && node dist/main.js",
+        "migrate": "tsc && node dist/migrations/index.js"
     },
     "devDependencies": {
         "@types/node": "^22.5.1",
         "typescript": "^5.5.4"
+    },
+    "dependencies": {
+        "sqlite3": "^5.1.7"
     }
 }
