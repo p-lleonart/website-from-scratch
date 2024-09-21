@@ -1,7 +1,7 @@
-import { AuthMiddleware, User } from "../auth"
-import { ModelObject } from "../database/types"
 import { getPostBody } from "../helpers/http"
-import { render } from "../template-parser"
+import { AuthMiddleware, User } from "../modules/auth"
+import { ModelObject } from "../modules/database/types"
+import { render } from "../modules/template-parser"
 import { HttpContext, Route } from "../types"
 
 export const AUTH_ROUTES: {[key: string]: Route} = {

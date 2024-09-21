@@ -1,7 +1,7 @@
-import { ModelObject } from "../database/types"
 import { getPostBody, getUrlParam } from "../helpers/http"
 import { Post } from "../models/post"
-import { render } from "../template-parser"
+import { ModelObject } from "../modules/database/types"
+import { render } from "../modules/template-parser"
 import { HttpContext } from "../types"
 
 

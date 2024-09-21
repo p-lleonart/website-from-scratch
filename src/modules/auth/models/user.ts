@@ -1,14 +1,11 @@
 import { AuthToken } from "./auth_token"
 import { compareSync, genSaltSync, hashSync } from "bcrypt"
-import { BaseModel } from "../../database/base-model"
-import { DBHandler } from "../../database/db-handler"
-import { Table } from "../../database/table"
-import { ModelObject } from "../../database/types"
-import { env } from "../../env"
-import { setCookie, getCookie, deleteCookie, randomId } from "../../helpers"
+import { BaseModel, DBHandler, ModelObject, Table } from "../../database"
+import { env } from "../../../env"
+import { deleteCookie, getCookie, randomId, setCookie } from "../../../helpers"
 import { IncomingMessage } from "http"
 import { AddUserMigration } from "../migrations/add_users"
-import Response from "../../response"
+import Response from "../../../response"
 
 
 const AUTH_TOKEN_COOKIE_EXPIRES = env.AUTH_TOKEN_COOKIE_EXPIRES

@@ -1,9 +1,8 @@
-import { DBHandler } from "../database/db-handler"
-import { runMigration } from "../database/migrations"
+import { DBHandler, runMigration } from "../modules/database"
 
-import { AddAuthTokenMigration } from "../auth/migrations/add_auth_tokens"
+import { AddAuthTokenMigration } from "../modules/auth/migrations/add_auth_tokens"
 import { AddPostMigration } from "./add_post"
-import { AddUserMigration } from "../auth/migrations/add_users"
+import { AddUserMigration } from "../modules/auth/migrations/add_users"
 
 const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "database.sqlite")
 const migrations: any = {

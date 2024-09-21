@@ -1,6 +1,6 @@
 import { escapeValue } from "./helpers"
 import { Table } from "./table"
-import { ModelObject, Operator, Serialize } from "./types"
+import type { ModelObject, Operator, Serialize } from "./types"
 
 export abstract class BaseModel {
     public static table: Table

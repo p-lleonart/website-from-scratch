@@ -1,11 +1,10 @@
+import { TemplateNotFound, VariableMissingInContext, WrongTypeVariable } from "./errors"
 import { readFileSync } from "fs"
-
-import { Context } from "./types"
-import { TemplateNotFound } from "./errors"
 import { parse } from "./handlers"
+import { type Context } from "./types"
 
 
-export function render(path: string, context?: Context) {
+function render(path: string, context?: Context) {
     let template = "<pre>[template-parser] default html template</pre>"
     try {
         template = readFileSync(path, { encoding: "utf8" })
@@ -16,4 +15,13 @@ export function render(path: string, context?: Context) {
     if (context) return parse(template, context)
 
     return parse(template, {})
+}
+
+export {
+    Context,
+    render,
+    parse,
+    TemplateNotFound,
+    VariableMissingInContext,
+    WrongTypeVariable
 }

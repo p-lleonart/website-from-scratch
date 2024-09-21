@@ -8,11 +8,21 @@ import { HttpContext } from "./types"
 
 setAssetsRoutes(ROUTES)
 
+function getEndpoint(method: string | undefined, url: URL) {
+    let path: string
+
+    if (!method) method = 'GET'
+    if (url.pathname[url.pathname.length - 1] === "/") path = url.pathname.slice(0, -1)
+    else path = url.pathname
+
+    return `${method}:${path}`
+}
+
 createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const url = new URL(req.url ? req.url : '/', `http://${req.headers.host}`)
 
     /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
-    const endpoint = `${req.method}:${url.pathname[-1] === "/" ? url.pathname.slice(0, -1) : url.pathname}`
+    const endpoint = getEndpoint(req.method, url)
     
     let response = new Response()
     let httpContext: HttpContext = {req, response}

@@ -1,8 +1,8 @@
-import { env } from "../env"
-import { deleteCookie } from "../helpers"
-import { Middleware } from "../middleware"
+import { env } from "../../env"
+import { deleteCookie } from "../../helpers"
+import { Middleware } from "../../middleware"
 import { User } from "./models/user"
-import { HttpContext } from "../types"
+import { HttpContext } from "../../types"
 
 
 const AUTH_TOKEN_COOKIE_NAME = env.AUTH_TOKEN_COOKIE_NAME

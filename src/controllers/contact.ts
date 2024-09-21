@@ -1,5 +1,5 @@
 import { getCookie, getPostBody, setCookie } from "../helpers"
-import { render } from "../template-parser"
+import { render } from "../modules/template-parser"
 import { HttpContext } from "../types"
 
 

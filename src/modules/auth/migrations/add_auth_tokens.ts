@@ -1,6 +1,4 @@
-import { DBHandler } from "../../database/db-handler"
-import { BaseMigration } from "../../database/migrations"
-import { Table } from "../../database/table"
+import { BaseMigration, DBHandler, Table } from "../../database"
 
 export class AddAuthTokenMigration extends BaseMigration {
     protected tableName = "auth_tokens"

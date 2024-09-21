@@ -1,6 +1,4 @@
-import { DBHandler } from "../database/db-handler"
-import { BaseMigration } from "../database/migrations"
-import { Table } from "../database/table"
+import { BaseMigration, DBHandler, Table } from "../modules/database"
 
 export class AddPostMigration extends BaseMigration {
     protected tableName = "posts"

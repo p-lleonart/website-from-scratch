@@ -1,6 +1,4 @@
-import { BaseModel } from "../database/base-model"
-import { DBHandler } from "../database/db-handler"
-import { Table } from "../database/table"
+import { BaseModel, DBHandler, Table } from "../modules/database"
 
 import { AddPostMigration } from "../migrations/add_post"
 

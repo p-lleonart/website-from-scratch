@@ -1,5 +1,6 @@
 # TODO
 
 Features:
-- HttpContext that contains req and response for controllers params
-- maybe convert Response and Req into classes
+- validator
+- convert request into a class
+- setup project for node 22 (suppress sqlite3 dependency)

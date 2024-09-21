@@ -1,7 +1,7 @@
 import { Database } from "sqlite3"
 
 import { getColumnsAsString } from "./helpers"
-import { Column, DBHandlerInterface, ModelObject, PrimaryKey } from "./types"
+import type { Column, DBHandlerInterface, ModelObject, PrimaryKey } from "./types"
 
 export class Table implements DBHandlerInterface {
     private db?: Database

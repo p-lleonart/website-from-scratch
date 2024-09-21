@@ -1,5 +1,5 @@
 import { Table } from "./table"
-import { Column } from "./types"
+import { type Column } from "./types"
 
 export function verifyCreateTableParams (table: Table) {
     let primaryKeyColName = null

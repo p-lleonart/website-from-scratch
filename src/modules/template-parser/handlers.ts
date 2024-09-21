@@ -1,6 +1,6 @@
 import { readFileSync } from "fs"
 
-import { Context } from "./types"
+import { type Context } from "./types"
 import { TemplateNotFound, VariableMissingInContext, WrongTypeVariable } from "./errors"
 
 

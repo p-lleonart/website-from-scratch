@@ -1,14 +1,8 @@
-import { env } from "../../env"
-import { BaseModel } from "../../database/base-model"
-import { DBHandler } from "../../database/db-handler"
-import { Table } from "../../database/table"
-
-import { randomId } from "../../helpers"
-
+import { BaseModel, DBHandler, Table } from "../../database"
+import { env } from "../../../env"
+import { randomId } from "../../../helpers"
 import { sign, verify } from "jsonwebtoken"
-
 import { AddAuthTokenMigration } from "../migrations/add_auth_tokens"
-
 import { User } from "./user"
 
 

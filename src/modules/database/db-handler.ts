@@ -1,8 +1,8 @@
 import { Database } from "sqlite3"
 
-import { Table } from "./table"
-import { AlterTable, DBHandlerInterface } from "./types"
 import { getColumnsAsString, verifyCreateTableParams } from "./helpers"
+import { Table } from "./table"
+import type { AlterTable, DBHandlerInterface } from "./types"
 
 export class DBHandler implements DBHandlerInterface {
     protected db?: Database = undefined
