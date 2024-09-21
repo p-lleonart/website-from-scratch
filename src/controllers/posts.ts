@@ -1,15 +1,12 @@
-import { IncomingMessage } from "http"
-
-import { getPostBody, getUrlParam, setHttpErrorResponse, setResponse } from "../helpers/http"
-import { Response } from "../types"
-import { render } from "../template-parser"
-
-import { Post } from "../models/post"
 import { ModelObject } from "../database/types"
+import { getPostBody, getUrlParam } from "../helpers/http"
+import { Post } from "../models/post"
+import { render } from "../template-parser"
+import { HttpContext } from "../types"
 
 
 export class PostController {
-    static async getAll(req: IncomingMessage, response: Response): Promise<Response> {
+    static async getAll({ response }: HttpContext) {
         const posts = await Post.findAll()
         const postsSerialized: ModelObject[] = await new Promise((resolve, reject) => {
             let serialized: ModelObject[] = []
@@ -29,59 +26,59 @@ export class PostController {
             resolve(serialized)
         })
         
-        return setResponse(response, {
+        return response.setResponse({
             contentType: "application/json",
             body: JSON.stringify(postsSerialized)
         })
     }
 
-    static async get(req: IncomingMessage, response: Response): Promise<Response> {
+    static async get({ req, response }: HttpContext) {
         const postId = getUrlParam(req, 'id')
 
-        if (!postId) return setHttpErrorResponse(response, {statusCode: 400, statusMessage: "URL param 'id' is missing."})
+        if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
         const post = await Post.find(postId)
         // OR
         // const post = await Post.findBy('id', postId)
 
-        if (!post) return setHttpErrorResponse(response, {statusCode: 404, statusMessage: "Post not found"})
+        if (!post) return response.setErrorResponse({statusCode: 404, statusMessage: "Post not found"})
 
-        return setResponse(response, {
+        return response.setResponse({
             contentType: "application/json",
             body: JSON.stringify(post)
         })
     }
 
-    static async create(req: IncomingMessage, response: Response): Promise<Response> {
-        return setResponse(response, {
+    static async create({ response }: HttpContext) {
+        return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/post-create.html", {})
         })
     }
 
-    static async store(req: IncomingMessage, response: Response): Promise<Response> {
+    static async store({ req, response }: HttpContext) {
         const body = await getPostBody(req)
         const post = { id: `${Date.now()}`, title: body.title, content: body.content }
 
         Post.create(post)
 
-        return setResponse(response, {
+        return response.setResponse({
             contentType: "application/json",
             body: JSON.stringify(post),
             statusCode: 201
         })
     }
 
-    static async editView(req: IncomingMessage, response: Response): Promise<Response> {
+    static async editView({ req, response }: HttpContext) {
         const postId = getUrlParam(req, 'id')
 
-        if (!postId) return setHttpErrorResponse(response, {statusCode: 400, statusMessage: "URL param 'id' is missing."})
+        if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
         const post: any = await Post.find(postId)
 
-        if (!post) return setHttpErrorResponse(response, {statusCode: 404, statusMessage: "Post not found"})
+        if (!post) return response.setErrorResponse({statusCode: 404, statusMessage: "Post not found"})
 
-        return setResponse(response, {
+        return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/post-update.html", {
                 postId: post.id,
@@ -91,27 +88,27 @@ export class PostController {
         })
     }
     
-    static async edit(req: IncomingMessage, response: Response): Promise<Response> {
+    static async edit({ req, response }: HttpContext) {
         const postId = getUrlParam(req, 'id')
         const body = await getPostBody(req)
 
-        if (!postId) return setHttpErrorResponse(response, {statusCode: 400, statusMessage: "URL param 'id' is missing."})
+        if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
         const newPost = await Post.save(postId, body)
 
-        return setResponse(response, {
+        return response.setResponse({
             contentType: "application/json",
             body: JSON.stringify(newPost)
         })
     }
 
-    static async delete(req: IncomingMessage, response: Response): Promise<Response> {
+    static async delete({ req, response }: HttpContext) {
         const postId = getUrlParam(req, 'id')
-        if (!postId) return setHttpErrorResponse(response, {statusCode: 400, statusMessage: "URL param 'id' is missing."})
+        if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
         await Post.destroy(postId)
         
-        return setResponse(response, {
+        return response.setResponse({
             contentType: "application/json",
             body: JSON.stringify({})
         })

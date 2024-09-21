@@ -1,9 +1,7 @@
-import { IncomingMessage } from "http"
-
-import { Response } from "./types"
+import { HttpContext } from "./types"
 
 export class Middleware {
-    public async handle(req: IncomingMessage, response: Response) {
+    public async handle({ req, response }: HttpContext) {
         return {mReq: req, mResponse: response, returnResponse: false}
     }
 }

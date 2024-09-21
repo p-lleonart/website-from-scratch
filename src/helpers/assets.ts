@@ -1,8 +1,6 @@
 import { lstatSync, readdir } from "fs"
 import { readdir as readdirP, readFile } from "fs/promises"
-import { IncomingMessage } from "http"
-
-import { Response, Route } from "../types"
+import { HttpContext, Route } from "../types"
 
 
 /**
@@ -39,16 +37,13 @@ export function setAssetsRoutes(routes: {[key: string]: Route}): void {
             const ext = assetEndpoint.split('.')[assetEndpoint.split('.').length - 1]
 
             routes[assetEndpoint] = {
-                callback: async (req: IncomingMessage, response: Response) => {
-                    response.statusCode = 200
-
-                    /** check if the extension is supported */
-                    response.headers['Content-Type'] = supportedContentTypes[ext] !== undefined
-                        ? supportedContentTypes[ext]
-                        : "text/plain"
-                    
-                    response.body = await readFile(`./src/public/${asset}`, "utf8")
-                    return response
+                callback: async ({ response }: HttpContext) => {
+                    return response.setResponse({
+                        contentType: supportedContentTypes[ext] !== undefined
+                            ? supportedContentTypes[ext]
+                            : "text/plain",
+                        body: await readFile(`./src/public/${asset}`, "utf8")
+                    })
                 }
             }
         }

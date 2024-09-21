@@ -1,8 +1,6 @@
 import { existsSync } from "node:fs"
-import { IncomingMessage } from "http"
 import { readFile } from "node:fs/promises"
-
-import { Response } from "./types"
+import { HttpContext } from "./types"
 
 
 export class ErrorsController {
@@ -30,17 +28,19 @@ export class ErrorsController {
         return customTemplate ? customTemplate : defaultTemplate
     }
 
-    static async notFound(req: IncomingMessage, response: Response): Promise<Response> {
-        response.statusCode = 404
-        response.headers['Content-Type'] = "text/html"        
-        response.body = await ErrorsController.getTemplateProcess(404, "<h3>404: Not Found</h3>")
-        return response
+    static async notFound({ response }: HttpContext) {
+        return response.setResponse({
+            body: await ErrorsController.getTemplateProcess(404, "<h3>404: Not Found</h3>"),
+            contentType: "text/html",
+            statusCode: 404
+        })
     }
     
-    static async serverError(req: IncomingMessage, response: Response, options: {errorMessage: string}): Promise<Response> {
-        response.statusCode = 500
-        response.headers['Content-Type'] = "text/html"
-        response.body = await ErrorsController.getTemplateProcess(500, `<h3>500: Internal server error</h3><pre>${options.errorMessage}</pre>`)
-        return response
+    static async serverError({ response }: HttpContext, options: {errorMessage: string}) {
+        return response.setResponse({
+            body: await ErrorsController.getTemplateProcess(500, `<h3>500: Internal server error</h3><pre>${options.errorMessage}</pre>`),
+            contentType: "text/html",
+            statusCode: 500
+        })
     }
 }

@@ -1,9 +1,9 @@
-import { createServer, IncomingMessage, ServerResponse } from "http"
-
 import { ErrorsController } from "./errors"
-import { Response } from "./types"
-import { ROUTES } from "./routes"
 import { setAssetsRoutes } from "./helpers"
+import { createServer, IncomingMessage, ServerResponse } from "http"
+import Response from "./response"
+import { ROUTES } from "./routes"
+import { HttpContext } from "./types"
 
 
 setAssetsRoutes(ROUTES)
@@ -14,11 +14,8 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
     /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
     const endpoint = `${req.method}:${url.pathname[-1] === "/" ? url.pathname.slice(0, -1) : url.pathname}`
     
-    let response: Response = {
-        statusCode: 200,
-        headers: {},
-        body: ""
-    }
+    let response = new Response()
+    let httpContext: HttpContext = {req, response}
 
     try {
         if(ROUTES[endpoint] !== undefined) {
@@ -32,29 +29,29 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
                         mReq,
                         mResponse,
                         returnResponse
-                    } = await route.middlewares[i].handle(req, response)
+                    } = await route.middlewares[i].handle(httpContext)
 
-                    req = mReq
-                    response = mResponse
+                    httpContext.req = mReq
+                    httpContext.response = mResponse
                     returnResponseAfterMiddleware = returnResponse
                     i++
                 }
             }
 
             if (!returnResponseAfterMiddleware) {
-                response = await ROUTES[endpoint].callback(req, response)
+                httpContext.response = await ROUTES[endpoint].callback(httpContext)
             }
         } else {
-            response = await ErrorsController.notFound(req, response)
+            httpContext.response = await ErrorsController.notFound(httpContext)
         }
     } catch (e: any) {
-        response = await ErrorsController.serverError(req, response, {errorMessage: e.message})
+        httpContext.response = await ErrorsController.serverError(httpContext, {errorMessage: e.message})
     }
     
-    console.log(`[${endpoint}] ${response.statusCode}`)
+    console.log(`[${endpoint}] ${httpContext.response.getStatusCode()}`)
 
-    res.writeHead(response.statusCode, response.headers)
-    res.write(response.body)
+    res.writeHead(httpContext.response.getStatusCode(), httpContext.response.getHeaders())
+    res.write(httpContext.response.getBody())
 
     res.end()
 })

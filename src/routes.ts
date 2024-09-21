@@ -1,63 +1,60 @@
-import { IncomingMessage } from "http"
-import { readFile } from "fs/promises"
-
-import { AUTH_ROUTES } from "./controllers/users"
-import { ContactController } from "./controllers/contact"
 import { CoreController } from "./controllers/core"
+import { ContactController } from "./controllers/contact"
 import { PostController } from "./controllers/posts"
-import { setResponse } from "./helpers"
-import { Response, Route } from "./types"
+import { AUTH_ROUTES } from "./controllers/users"
+import { readFile } from "fs/promises"
 import { TestMiddleware, Test2Middleware, Test3Middleware } from "./middlewares/test"
+import { HttpContext, Route } from "./types"
 
 
 export const ROUTES: {[key: string]: Route} = {
     "GET:/": {
-        callback: async (req: IncomingMessage, response: Response) => {
-            return setResponse(response, {
+        callback: async ({ response }: HttpContext) => {
+            return response.setResponse({
                 contentType: "text/html",
                 body: await readFile("./src/templates/index.html", "utf8")
             })
         }
     },
     "GET:/about": {
-        callback: async (req: IncomingMessage, response: Response) => CoreController.about(req, response)
+        callback: async (httpContext: HttpContext) => CoreController.about(httpContext)
     },
     "GET:/contact": {
-        callback: async (req: IncomingMessage, response: Response) => ContactController.view(req, response)
+        callback: async (httpContext: HttpContext) => ContactController.view(httpContext)
     },
     "POST:/contact": {
-        callback: async (req: IncomingMessage, response: Response) => ContactController.store(req, response)
+        callback: async (httpContext: HttpContext) => ContactController.store(httpContext)
     },
 
     "GET:/posts": {
-        callback: async (req: IncomingMessage, response: Response) => PostController.getAll(req, response)
+        callback: async (httpContext: HttpContext) => PostController.getAll(httpContext)
     },
     // formatted routes aren't implemented yet, for now on, we'll use searchParams
     "GET:/posts/view": {
-        callback: async (req: IncomingMessage, response: Response) => PostController.get(req, response),
+        callback: async (httpContext: HttpContext) => PostController.get(httpContext),
         middlewares: [
             new TestMiddleware(),
             new Test2Middleware()
         ]
     },
     "GET:/posts/create": {
-        callback: async (req: IncomingMessage, response: Response) => PostController.create(req, response)
+        callback: async (httpContext: HttpContext) => PostController.create(httpContext)
     },
     "POST:/posts/create": {
-        callback: async (req: IncomingMessage, response: Response) => PostController.store(req, response)
+        callback: async (httpContext: HttpContext) => PostController.store(httpContext)
     },
     "GET:/posts/edit": {
-        callback: async (req: IncomingMessage, response: Response) => PostController.editView(req, response)
+        callback: async (httpContext: HttpContext) => PostController.editView(httpContext)
     },
     "POST:/posts/edit": {
-        callback: async (req: IncomingMessage, response: Response) => PostController.edit(req, response)
+        callback: async (httpContext: HttpContext) => PostController.edit(httpContext)
     },
     "POST:/posts/delete": {
-        callback: async (req: IncomingMessage, response: Response) => PostController.delete(req, response)
+        callback: async (httpContext: HttpContext) => PostController.delete(httpContext)
     },
     "GET:/dashboard": {
-        callback: async (req: IncomingMessage, response: Response) => {
-            return setResponse(response, {
+        callback: async ({ response }: HttpContext) => {
+            return response.setResponse({
                 contentType: "application/json",
                 body: JSON.stringify({msg: "Welcome on your dashboard!"})
             })

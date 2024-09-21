@@ -1,13 +1,11 @@
-import { IncomingMessage } from "http"
-
-import { getCookie, getPostBody, setCookie, setResponse } from "../helpers"
-import { Response } from "../types"
+import { getCookie, getPostBody, setCookie } from "../helpers"
 import { render } from "../template-parser"
+import { HttpContext } from "../types"
 
 
 export class ContactController {
-    static async view(req: IncomingMessage, response: Response): Promise<Response> {
-        return setResponse(response, {
+    static async view({ response }: HttpContext) {
+        return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/contact.html", {
                 name: "john doe",
@@ -18,7 +16,7 @@ export class ContactController {
         })
     }
 
-    static async store(req: IncomingMessage, response: Response): Promise<Response> {
+    static async store({ req, response }: HttpContext) {
         const message = await getPostBody(req)
         
         console.info(`message received (from ${message.name}): ${message.content}`)
@@ -28,12 +26,12 @@ export class ContactController {
             ? parseInt(cookie, 10)
             : 0
 
-        response.headers = setCookie(response.headers, {
+        response.setHeaders(setCookie(response.getHeaders(), {
             name: "MessagesSent",
             value: `${messagesSent + 1}`
-        })
+        }))
 
-        return setResponse(response, {
+        return response.setResponse({
             contentType: "text/html",
             body: render('./src/templates/contact-thanks.html', {
                 name: message.name,

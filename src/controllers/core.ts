@@ -1,12 +1,9 @@
-import { IncomingMessage } from "http"
-
-import { setResponse } from "../helpers/http"
-import { Response } from "../types"
+import { HttpContext } from "../types"
 
 
 export class CoreController {
-    static async about(req: IncomingMessage, response: Response): Promise<Response> {
-        return setResponse(response, {
+    static async about({ response }: HttpContext) {
+        return response.setResponse({
             contentType: "text/html",
             body: "<h1>About</h1>"
         })

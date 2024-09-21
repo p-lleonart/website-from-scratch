@@ -1,19 +1,14 @@
 import { AuthToken } from "./auth_token"
-
 import { compareSync, genSaltSync, hashSync } from "bcrypt"
-
-import { env } from "../../env"
 import { BaseModel } from "../../database/base-model"
 import { DBHandler } from "../../database/db-handler"
 import { Table } from "../../database/table"
 import { ModelObject } from "../../database/types"
-
+import { env } from "../../env"
 import { setCookie, getCookie, deleteCookie, randomId } from "../../helpers"
 import { IncomingMessage } from "http"
-
 import { AddUserMigration } from "../migrations/add_users"
-
-import { Response } from "../../types"
+import Response from "../../response"
 
 
 const AUTH_TOKEN_COOKIE_EXPIRES = env.AUTH_TOKEN_COOKIE_EXPIRES
@@ -74,13 +69,15 @@ export class User extends BaseModel {
             authToken = authTokensFromDb[0]
         }
 
-        response.headers = setCookie(response.headers, {
-            name: AUTH_TOKEN_COOKIE_NAME,
-            value: encodeURIComponent(authToken.token as string),
-            httpOnly: true,
-            secure: true,
-            expires: new Date(Date.now() + AUTH_TOKEN_COOKIE_EXPIRES).toUTCString()
-        })
+        response.setHeaders(
+            setCookie(response.getHeaders(), {
+                name: AUTH_TOKEN_COOKIE_NAME,
+                value: encodeURIComponent(authToken.token as string),
+                httpOnly: true,
+                secure: true,
+                expires: new Date(Date.now() + AUTH_TOKEN_COOKIE_EXPIRES).toUTCString()
+            })
+        )
         return response
     }
 
@@ -92,7 +89,7 @@ export class User extends BaseModel {
         
         authToken = authTokensFromDb[0]
         await AuthToken.destroy(authToken.id)
-        response.headers = deleteCookie(response.headers, AUTH_TOKEN_COOKIE_NAME)
+        response.setHeaders(deleteCookie(response.getHeaders(), AUTH_TOKEN_COOKIE_NAME))
 
         return response
     }

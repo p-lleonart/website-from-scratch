@@ -1,11 +1,10 @@
-import { IncomingMessage } from "http"
+import { getCookie } from "../helpers"
 import { Middleware } from "../middleware"
-import { Response } from "../types"
-import { getCookie, setHttpErrorResponse } from "../helpers"
+import { HttpContext } from "../types"
 
 
 export class TestMiddleware extends Middleware {
-    public async handle(req: IncomingMessage, response: Response) {
+    public async handle({ req, response }: HttpContext) {
         console.log("test middleware")
         return {mReq: req, mResponse: response, returnResponse: false}
     }
@@ -13,17 +12,17 @@ export class TestMiddleware extends Middleware {
 
 
 export class Test2Middleware extends Middleware {
-    public async handle(req: IncomingMessage, response: Response) {
+    public async handle({ req, response }: HttpContext) {
         console.log("test 2 middleware")
-        response.headers["MessagesSent"] = getCookie(req, "MessagesSent")
+        response.setHeader("MessagesSent", getCookie(req, "MessagesSent"))
         return {mReq: req, mResponse: response, returnResponse: false}
     }
 }
 
 export class Test3Middleware extends Middleware {
-    public async handle(req: IncomingMessage, response: Response) {
+    public async handle({ req, response }: HttpContext) {
         console.log("test 3 middleware")
-        response = await setHttpErrorResponse(response, {
+        response = response.setErrorResponse({
             statusCode: 403,
             statusMessage: "Unauthorized"
         })
