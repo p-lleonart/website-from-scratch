@@ -13,6 +13,12 @@ export function getUrlParam(req: IncomingMessage, paramName: string) {
     return new URL(req.url!, `http://${req.headers.host}`).searchParams!.get(paramName)
 }
 
+export function redirect(response: Response, url: string): Response {
+    response.statusCode = 302
+    response.headers['Location'] = url
+    return response
+}
+
 export function setResponse(response: Response, options: {body: string, contentType: string, statusCode?: number}) {
     response.statusCode = options.statusCode ? options.statusCode : 200
     response.headers['Content-Type'] = options.contentType

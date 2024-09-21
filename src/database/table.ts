@@ -126,7 +126,7 @@ export class Table implements DBHandlerInterface {
         })
     }
 
-    public async add(item: Object): Promise<void> {
+    public async add(item: Object): Promise<ModelObject> {
         return new Promise((resolve, reject) => {
             this.db = this.connectDb(this.dbPath)
 
@@ -145,7 +145,7 @@ export class Table implements DBHandlerInterface {
             })
             
             this.closeConnection()
-            resolve(undefined)
+            resolve(item as ModelObject)
         })
     }
 

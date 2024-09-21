@@ -24,7 +24,7 @@ export abstract class BaseModel {
     public static async findBy(key: string, value: string, operator: Operator = '=') {
         let result
         try {
-            result = this.table.getBy(`${escapeValue(key)} ${operator} ${escapeValue(value)}`)
+            result = this.table.getBy(`${escapeValue(key)} ${operator} '${escapeValue(value)}'`)
         } catch (err) {
             console.error(`[database] error: BaseModel.findBy() : ${(err as Error).message}`)
         }

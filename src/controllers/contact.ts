@@ -1,8 +1,6 @@
 import { IncomingMessage } from "http"
 
-import { getCookie, setCookie } from "../helpers/cookies"
-import { getPostBody } from "../helpers/http"
-import { setResponse } from "../helpers/http"
+import { getCookie, getPostBody, setCookie, setResponse } from "../helpers"
 import { Response } from "../types"
 import { render } from "../template-parser"
 

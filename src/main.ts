@@ -3,7 +3,7 @@ import { createServer, IncomingMessage, ServerResponse } from "http"
 import { ErrorsController } from "./errors"
 import { Response } from "./types"
 import { ROUTES } from "./routes"
-import { setAssetsRoutes } from "./helpers/assets"
+import { setAssetsRoutes } from "./helpers"
 
 
 setAssetsRoutes(ROUTES)
@@ -22,7 +22,28 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
 
     try {
         if(ROUTES[endpoint] !== undefined) {
-            response = await ROUTES[endpoint].callback(req, response)
+            const route = ROUTES[endpoint]
+            let returnResponseAfterMiddleware = false
+
+            if (route.middlewares) {
+                let i = 0
+                while (!returnResponseAfterMiddleware && i < route.middlewares.length) {
+                    const {
+                        mReq,
+                        mResponse,
+                        returnResponse
+                    } = await route.middlewares[i].handle(req, response)
+
+                    req = mReq
+                    response = mResponse
+                    returnResponseAfterMiddleware = returnResponse
+                    i++
+                }
+            }
+
+            if (!returnResponseAfterMiddleware) {
+                response = await ROUTES[endpoint].callback(req, response)
+            }
         } else {
             response = await ErrorsController.notFound(req, response)
         }

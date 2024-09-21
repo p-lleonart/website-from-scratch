@@ -1,9 +1,10 @@
+import { Middleware } from "./middleware"
 
 export type Cookie = {
     name: string
     value: string
     domain?: string
-    expires?: Date
+    expires?: string
     httpOnly?: boolean
     maxAge?: number
     partitioned?: boolean
@@ -12,14 +13,18 @@ export type Cookie = {
     sameSite?: "Strict" | "Lax" | "None"
 }
 
+export type Headers = {
+    [key: string]: string
+}
+
 export type Response = {
     statusCode: number
-    headers: any
+    headers: Headers
     body: string
 }
 
 export type Route = {
     callback: Function
     description?: string
-    middlewares?: any[]
+    middlewares?: Middleware[]
 }

@@ -1,6 +1,5 @@
 import { IncomingMessage } from "http"
 import { parse } from "querystring"
-import { ModelObject } from "../database/types"
 
 
 /**
@@ -14,7 +13,7 @@ import { ModelObject } from "../database/types"
  * @param raw 
  * @returns 
  */
-function parseBase(delimiter1: string, delimiter2: string, raw: string): {[key: string]: string} {
+export function parseBase(delimiter1: string, delimiter2: string, raw: string): {[key: string]: string} {
     let datas = raw.split(delimiter1)
     let output: {[key: string]: string} = {}
     
@@ -51,8 +50,8 @@ export function parseCookieData(raw: string | undefined): {[key: string]: string
  * @param raw 
  * @returns 
  */
-export function parseRequestData(raw: string): ModelObject {
-    return parse(raw) as ModelObject
+export function parseRequestData(raw: string): {[key: string]: string} {
+    return parse(raw) as {[key: string]: string}
 }
 
 export async function extractPostRequestData(req: IncomingMessage): Promise<string> {
