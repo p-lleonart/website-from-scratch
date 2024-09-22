@@ -2,7 +2,9 @@ import { getPostBody } from "../helpers/http"
 import { AuthMiddleware, User } from "../modules/auth"
 import { ModelObject } from "../modules/database/types"
 import { render } from "../modules/template-parser"
-import { HttpContext, Route } from "../types"
+import { Schema } from "../modules/validator"
+import type { LoginPayload, SignupPayload } from "./types"
+import type { HttpContext, Route } from "../types"
 
 export const AUTH_ROUTES: {[key: string]: Route} = {
     "GET:/users/login": {
@@ -23,7 +25,8 @@ export const AUTH_ROUTES: {[key: string]: Route} = {
     },
     "GET:/users/dashboard": {
         callback: async (httpContext: HttpContext) => UserController.dashboard(httpContext),
-        middlewares: [new AuthMiddleware()]
+        middlewares: [new AuthMiddleware()],
+        description: "This is the dashboard that permits to the user to access to their data. It requires a login to access to it."
     }
 }
 
@@ -36,21 +39,29 @@ export class UserController {
     }
 
     public static async processLogin({ req, response }: HttpContext) {
-        const body = await getPostBody(req)
+        const schema = await Schema.create({
+            email: {
+                "email": []
+            },
+            password: {
+                "min": [8]
+            }
+        })
+        const body = await schema.parse<LoginPayload>(await getPostBody(req))
         let user: ModelObject | null
 
-        if (!body || !body.email || !body.password) {
+        if (!body.success) {
             return response.setResponse({
                 contentType: "text/html",
                 statusCode: 422,
                 body: render("./src/templates/users/login.html", {
-                    error: "Email or password missing"
+                    error: Object.values(body.data).join("\n")
                 })
             })
         }
 
         try {
-            user = await User.verifyCrendentials(body.email, body.password)
+            user = await User.verifyCrendentials(body.data.email, body.data.password)
         } catch (err: any) {
             return response.setResponse({
                 contentType: "text/html",
@@ -83,21 +94,36 @@ export class UserController {
     }
 
     public static async processSignup({ req, response }: HttpContext) {
-        const body = await getPostBody(req)
+        const schema = await Schema.create({
+            name: {
+                "optional": ["John Doe"]  // you can set a default value
+            },
+            email: {
+                "email": []
+            },
+            password: {
+                "myCustomMin": []  // OR "min": [8] (built-in)
+            }
+        })
+        const body = await schema.parse<SignupPayload>(await getPostBody(req))
         let user: ModelObject | null
 
-        if (!body || !body.name || !body.email || !body.password) {
+        if (!body.success) {
             return response.setResponse({
                 contentType: "text/html",
                 statusCode: 422,
                 body: render("./src/templates/users/signup.html", {
-                    error: "Name, email or password are missing"
+                    error: Object.values(body.data).join("\n")
                 })
             })
         }
 
         try {
-            user = await User.create({ name: body.name, email: body.email, password: body.password})
+            user = await User.create({
+                name: body.data.name,
+                email: body.data.email,
+                password: body.data.password
+            })
         } catch (err: any) {
             return response.setResponse({
                 contentType: "text/html",
