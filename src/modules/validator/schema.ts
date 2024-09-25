@@ -19,7 +19,6 @@ async function getRule(name: string, ...args: any[]): Promise<Rule> {
 export default class Schema {
     private constructor(private fields: Fields, customRules: any) {
         let errors: string[] = []
-        console.log(customRules)
 
         for (const field of Object.keys(fields)) {
             for (const rule of Object.keys(fields[field])) {

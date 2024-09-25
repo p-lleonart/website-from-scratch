@@ -8,9 +8,10 @@
  */
 
 import { BaseModel } from "./base-model"
+import BaseSeeder from "./base-seeder"
 import { DBHandler } from "./db-handler"
 import { verifyCreateTableParams, getColumnsAsString, escapeValue } from "./helpers"
-import { BaseMigration, runMigration } from "./migrations"
+import BaseMigration from "./migrations"
 import { Table } from "./table"
 import type {
     Column,
@@ -24,20 +25,20 @@ import type {
 } from "./types"
 
 export {
-    BaseModel,
-    DBHandler,
-    verifyCreateTableParams,
-    getColumnsAsString,
-    escapeValue,
+    AlterTable,
     BaseMigration,
-    runMigration,
-    Table,
+    BaseModel,
+    BaseSeeder,
     Column,
+    DBHandler,
     DBHandlerInterface,
+    escapeValue,
+    getColumnsAsString,
+    Table,
     ModelObject,
     Operator,
-    SqlOperator,
     PrimaryKey,
-    AlterTable,
-    Serialize
+    Serialize,
+    SqlOperator,
+    verifyCreateTableParams
 }

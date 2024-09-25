@@ -6,6 +6,8 @@ Please note that foreign keys aren't planned to be implemented. If you want to l
 
 DISCLAIMER: some features are not fully available or tested (alter table, findByWithSQL, SQL injection avoider), please consider test them yourselves before using these features.
 
+Note: you can install the SQLite Viewer VS code extension (from Florian Klampfer) to view your database directly from the IDE.
+
 ## Start
 
 Create a migration and then run it (more infos at the next section). And run it.
@@ -272,3 +274,44 @@ const postsSerialized: ModelObject[] = await new Promise((resolve, reject) => {
     resolve(serialized)
 })
 ```
+
+## Seeders
+
+You can create seeders if you want to create items automatically.
+
+Let's create a file `post.ts` in the directory named `seeders`.
+
+```ts
+import { Post } from "../models/post"
+import { BaseSeeder } from "../modules/database"
+
+
+export class PostSeeder extends BaseSeeder {
+    public async run() {
+        await Post.create({
+            id: Date.now(),
+            title: "created by seeder",
+            content: "this is a post created by the seeder"
+        })
+    }
+}
+```
+
+Now, register the seeder (as for migrations):
+
+```ts
+import { BaseSeeder } from "../modules/database"
+
+import { PostSeeder } from "./post"
+
+
+const seeders: { [key: string]: BaseSeeder } = {
+    "create_initial_post": new PostSeeder()
+}
+
+Object.keys(seeders).forEach(key => BaseSeeder.runSeeder(key, seeders[key]))
+```
+
+Then run `pnpm run run:seeders create_initial_post`.
+
+Nota: you must specify the seeder key to run the seeder.

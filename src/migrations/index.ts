@@ -1,4 +1,4 @@
-import { DBHandler, runMigration } from "../modules/database"
+import { BaseMigration, DBHandler } from "../modules/database"
 
 import { AddAuthTokenMigration } from "../modules/auth/migrations/add_auth_tokens"
 import { AddPostMigration } from "./add_post"
@@ -11,4 +11,4 @@ const migrations: any = {
     'add_auth_token': new AddAuthTokenMigration(dbHandler),
 }
 
-Object.keys(migrations).forEach(key => runMigration(key, migrations[key]))
+Object.keys(migrations).forEach(key => BaseMigration.runMigration(key, migrations[key]))

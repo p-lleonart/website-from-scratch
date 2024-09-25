@@ -5,6 +5,7 @@
     "scripts": {
         "start": "tsc && node dist/main.js",
         "migrate": "tsc src/migrations/index.ts --outDir ./dist && node dist/migrations/index.js",
+        "run:seeders": "tsc src/seeders/index.ts --outDir ./dist && node dist/seeders/index.js",
         "list:routes": "tsc scripts/list_routes.ts --outDir ./dist && node dist/scripts/list_routes.js"
     },
     "devDependencies": {
