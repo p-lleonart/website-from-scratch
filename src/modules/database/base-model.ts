@@ -11,7 +11,7 @@ export abstract class BaseModel {
         return this.table.add(options)
     }
 
-    public static async find(id: string | number, idCol: string = 'id'): Promise<ModelObject> {
+    public static async find(id: string | number, idCol: string = 'id'): Promise<ModelObject | undefined> {
         let result
         try {
             result = await this.table.get({ colName: idCol, value: `${id}` })
@@ -21,28 +21,28 @@ export abstract class BaseModel {
         return result as ModelObject
     }
 
-    public static async findBy(key: string, value: string, operator: Operator = '=') {
-        let result
+    public static async findBy(key: string, value: string, operator: Operator = '='): Promise<ModelObject[]> {
+        let result: ModelObject[] = []
         try {
-            result = this.table.getBy(`${escapeValue(key)} ${operator} '${escapeValue(value)}'`)
+            result = await this.table.getBy(`${escapeValue(key)} ${operator} '${escapeValue(value)}'`)
         } catch (err) {
             console.error(`[database] error: BaseModel.findBy() : ${(err as Error).message}`)
         }
         return result
     }
 
-    public static async findMany(key: string, value: string, operator: Operator = '=') {
+    public static async findMany(key: string, value: string, operator: Operator = '='): Promise<ModelObject[]> {
         return this.findBy(key, value, operator)
     }
 
     /** 
      * WARNING: this is not fully implemented.
      */
-    public static async findWithSql(condition: string) {
+    public static async findWithSql(condition: string): Promise<ModelObject[]> {
         return this.table.getBy(condition)
     }
 
-    public static async findAll() {
+    public static async findAll(): Promise<ModelObject[]> {
         return this.table.getAll()
     }
 

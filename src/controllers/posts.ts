@@ -1,8 +1,8 @@
-import { getPostBody, getUrlParam } from "../helpers/http"
-import { Post } from "../models/post"
-import { ModelObject } from "../modules/database/types"
-import { render } from "../modules/template-parser"
-import { HttpContext } from "../types"
+import { getUrlParam } from "@/helpers"
+import { Post } from "@/models/post"
+import { ModelObject } from "@database/types"
+import { render } from "@template-parser"
+import { HttpContext } from "@/types"
 
 
 export class PostController {
@@ -56,8 +56,8 @@ export class PostController {
         })
     }
 
-    static async store({ req, response }: HttpContext) {
-        const body = await getPostBody(req)
+    static async store({ request, response }: HttpContext) {
+        const body = request.getBody()
         const post = { id: `${Date.now()}`, title: body.title, content: body.content }
 
         Post.create(post)
@@ -88,9 +88,9 @@ export class PostController {
         })
     }
     
-    static async edit({ req, response }: HttpContext) {
+    static async edit({ req, request, response }: HttpContext) {
         const postId = getUrlParam(req, 'id')
-        const body = await getPostBody(req)
+        const body = request.getBody()
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 

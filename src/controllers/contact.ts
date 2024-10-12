@@ -1,6 +1,6 @@
-import { getCookie, getPostBody, setCookie } from "../helpers"
-import { render } from "../modules/template-parser"
-import { HttpContext } from "../types"
+import { getCookie, setCookie } from "@/helpers"
+import { render } from "@template-parser"
+import { HttpContext } from "@/types"
 
 
 export class ContactController {
@@ -16,8 +16,8 @@ export class ContactController {
         })
     }
 
-    static async store({ req, response }: HttpContext) {
-        const message = await getPostBody(req)
+    static async store({ req, request, response }: HttpContext) {
+        const message = request.getBody()
         
         console.info(`message received (from ${message.name}): ${message.content}`)
 

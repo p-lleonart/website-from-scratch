@@ -5,7 +5,7 @@ The auth module can handle user authentication with JWT and HTTP cookies.
 It uses bcrypt to hash passwords and jsonwebtoken to generate the authentication tokens.
 
 ## Models & migrations
-Go in `src/auth`.
+Go in `src/modules/auth`.
 
 Now edit the migrations and models in `migrations` if you need (default user model contains a name, email, id and a password, the default auth token model contains a userId, a token, an expiration date and an id).
 

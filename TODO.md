@@ -1,6 +1,7 @@
 # TODO
 
 Features:
-- csrf
-- convert request into a class
+- csrf (check safety)
+- implement basic boole algebra in template-parser
+- convert request into a class (in progress)
 - setup project for node 22 (suppress sqlite3 dependency)

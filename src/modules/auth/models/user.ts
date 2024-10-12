@@ -1,16 +1,14 @@
 import { AuthToken } from "./auth_token"
 import { compareSync, genSaltSync, hashSync } from "bcrypt"
-import { BaseModel, DBHandler, ModelObject, Table } from "../../database"
-import { env } from "../../../env"
-import { deleteCookie, getCookie, randomId, setCookie } from "../../../helpers"
+import { BaseModel, DBHandler, ModelObject, Table } from "@database"
+import { env } from "@/env"
+import { deleteCookie, getCookie, randomId, setCookie } from "@/helpers"
 import { IncomingMessage } from "http"
-import { AddUserMigration } from "../migrations/add_users"
-import Response from "../../../response"
+import { AddUserMigration } from "@auth/migrations/add_users"
+import { Response } from "@/response"
 
 
-const AUTH_TOKEN_COOKIE_EXPIRES = env.AUTH_TOKEN_COOKIE_EXPIRES
-    ? parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)
-    : 1800000
+const AUTH_TOKEN_COOKIE_EXPIRES = parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)
 
 const AUTH_TOKEN_COOKIE_NAME = env.AUTH_TOKEN_COOKIE_NAME
     ? env.AUTH_TOKEN_COOKIE_NAME

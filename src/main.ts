@@ -1,7 +1,10 @@
+import 'module-alias/register'
+
 import { ErrorsController } from "./errors"
 import { setAssetsRoutes } from "./helpers"
 import { createServer, IncomingMessage, ServerResponse } from "http"
-import Response from "./response"
+import { Request } from './request'
+import { Response } from "./response"
 import { ROUTES } from "./routes"
 import { HttpContext } from "./types"
 
@@ -25,7 +28,8 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const endpoint = getEndpoint(req.method, url)
     
     let response = new Response()
-    let httpContext: HttpContext = {req, response}
+    let request = await Request.init(req)
+    let httpContext: HttpContext = {req, request, response}
 
     try {
         if(ROUTES[endpoint] !== undefined) {

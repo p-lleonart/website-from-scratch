@@ -5,7 +5,7 @@ import type { Rule } from "./types"
 
 export async function importCustomRules() {
     try {
-        return await import("../../validators/rules")
+        return await import("../../validators/rules.js")
     } catch (err) {  /** no custom rules set */
     }
 }

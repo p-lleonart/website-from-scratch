@@ -1,24 +1,24 @@
 import { BaseMigration, DBHandler, Table } from "@database"
 
-export class AddPostMigration extends BaseMigration {
-    protected tableName = "posts"
+export default class AddCsrfTokenMigration extends BaseMigration {
+    protected tableName = "csrf_tokens"
     protected table = new Table(this.dbHandler.getDbPath(), this.tableName, [
         {
-            name: 'id',  // Nota: I won't use autoincrement to handle ids in this example
-            type: 'INTEGER',
+            name: "id",
+            type: "TEXT",
             isNotNull: true,
+            isUnique: true,
             isPrimaryKey: true,
-            isUnique: true
         },
         {
-            name: 'title',
-            type: 'TEXT',
+            name: "token",
+            type: "TEXT",
             isNotNull: true
         },
         {
-            name: 'content',
-            type: 'TEXT',
-            isNotNull: true,
+            name: "expires",
+            type: "INTEGER",
+            isNotNull: true
         }
     ])
 

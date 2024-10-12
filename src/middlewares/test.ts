@@ -1,6 +1,6 @@
-import { getCookie } from "../helpers"
-import { Middleware } from "../middleware"
-import { HttpContext } from "../types"
+import { getCookie } from "@/helpers"
+import { Middleware } from "@/middleware"
+import { HttpContext } from "@/types"
 
 
 export class TestMiddleware extends Middleware {

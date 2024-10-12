@@ -1,12 +1,34 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "commonjs",
+    "target": "ESNext",
+    "module": "CommonJS",
     "strict": true,
     "esModuleInterop": true,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+
+      "@auth": ["src/modules/auth/index.ts"],
+      "@auth/*": ["src/modules/auth/*"],
+      
+      "@csrf-shield": ["src/modules/csrf-shield/index.ts"],
+      "@csrf-shield/*": ["src/modules/csrf-shield/*"],
+      
+      "@database": ["src/modules/database/index.ts"],
+      "@database/*": ["src/modules/database/*"],
+      
+      "@template-parser": ["src/modules/template-parser/index.ts"],
+      "@template-parser/*": ["src/modules/template-parser/*"],
+
+      "@validator": ["src/modules/validator/index.ts"],
+      "@validator/*": ["src/modules/validator/*"]
+    },
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "scripts/**/*"
+  ],
   "exclude": ["node_modules"]
 }

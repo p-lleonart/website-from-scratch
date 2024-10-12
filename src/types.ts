@@ -1,6 +1,7 @@
 import { IncomingMessage } from "http"
 import { Middleware } from "./middleware"
-import Response from "./response"
+import { Request } from "./request"
+import { Response } from "./response"
 
 export type Cookie = {
     name: string
@@ -21,6 +22,7 @@ export type Headers = {
 
 export type HttpContext = {
     req: IncomingMessage
+    request: Request
     response: Response
 }
 

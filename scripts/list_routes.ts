@@ -1,7 +1,9 @@
+import 'module-alias/register'
+
 import { ROUTES } from "../src/routes"
 
 
-let routesToDisplay = {}
+let routesToDisplay: { [key: string]: { [key: string]: string } } = {}
 
 for (const endpoint of Object.keys(ROUTES)) {
     const description = ROUTES[endpoint].description ? ROUTES[endpoint].description.slice(0, 40) : 'route'

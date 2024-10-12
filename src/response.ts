@@ -1,9 +1,9 @@
-import { type Context, render } from "./modules/template-parser"
+import { type Context, render } from "@template-parser"
 import { existsSync } from "node:fs"
 import { type Headers } from "./types"
 
 
-export default class Response {
+export class Response {
     private statusCode: number
     private headers: Headers
     private body: string

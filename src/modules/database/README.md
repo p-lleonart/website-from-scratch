@@ -22,14 +22,19 @@ To use them, you'll need to create a directory (if not already created) `migrati
 
 <pre>index.ts</pre>
 ```ts
-import { DBHandler } from "../database/db-handler"
-import { runMigration } from "../database/migrations"
+import 'module-alias/register'
+
+import { BaseMigration, DBHandler } from "@database"
+
+import { AddPostMigration } from "./add_post"
 
 const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "database.sqlite")
 const migrations: any = {
+    'add_post': new AddPostMigration(dbHandler),
 }
 
-Object.keys(migrations).forEach(key => runMigration(key, migrations[key]))
+Object.keys(migrations).forEach(key => BaseMigration.runMigration(key, migrations[key]))
+
 ```
 
 ### Create a migration
@@ -40,9 +45,7 @@ So, here's my migration:
 
 <pre>add-post.ts</pre>
 ```ts
-import { DBHandler } from "../database/db-handler"
-import { BaseMigration } from "../database/migrations"
-import { Table } from "../database/table"
+import { DBHandler, BaseMigration, Table } from "@database"
 
 export class AddPostMigration extends BaseMigration {
     protected tableName = "posts"
@@ -175,9 +178,7 @@ You need to create a directory named `models` and you create a new file containi
 Example: 
 <pre>post.ts</pre>
 ```ts
-import { BaseModel } from "../database/base-model"
-import { DBHandler } from "../database/db-handler"
-import { Table } from "../database/table"
+import { BaseModel, DBHandler, Table } from "@database"
 
 import { AddPostMigration } from "../migrations/add_post"
 
@@ -283,7 +284,7 @@ Let's create a file `post.ts` in the directory named `seeders`.
 
 ```ts
 import { Post } from "../models/post"
-import { BaseSeeder } from "../modules/database"
+import { BaseSeeder } from "@database"
 
 
 export class PostSeeder extends BaseSeeder {
@@ -300,7 +301,7 @@ export class PostSeeder extends BaseSeeder {
 Now, register the seeder (as for migrations):
 
 ```ts
-import { BaseSeeder } from "../modules/database"
+import { BaseSeeder } from "@database"
 
 import { PostSeeder } from "./post"
 

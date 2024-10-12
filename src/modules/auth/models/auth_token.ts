@@ -1,14 +1,12 @@
-import { BaseModel, DBHandler, Table } from "../../database"
-import { env } from "../../../env"
-import { randomId } from "../../../helpers"
+import { BaseModel, DBHandler, Table } from "@database"
+import { env } from "@/env"
+import { randomId } from "@/helpers"
 import { sign, verify } from "jsonwebtoken"
-import { AddAuthTokenMigration } from "../migrations/add_auth_tokens"
+import { AddAuthTokenMigration } from "@auth/migrations/add_auth_tokens"
 import { User } from "./user"
 
 
-const AUTH_TOKEN_COOKIE_EXPIRES = env.AUTH_TOKEN_COOKIE_EXPIRES
-    ? parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)
-    : 1800000
+const AUTH_TOKEN_COOKIE_EXPIRES = parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)
 
 const dbHandler = new DBHandler(env.DATABASE_NAME ? env.DATABASE_NAME : "database.sqlite")
 

@@ -1,10 +1,10 @@
-import { getPostBody } from "../helpers/http"
-import { AuthMiddleware, User } from "../modules/auth"
-import { ModelObject } from "../modules/database/types"
-import { render } from "../modules/template-parser"
-import { Schema } from "../modules/validator"
+import { AuthMiddleware, User } from "@auth"
+import { CsrfValidationMiddleware } from "@csrf-shield"
+import { ModelObject } from "@database"
+import { render } from "@template-parser"
+import { Schema } from "@validator"
 import type { LoginPayload, SignupPayload } from "./types"
-import type { HttpContext, Route } from "../types"
+import type { HttpContext, Route } from "@/types"
 
 export const AUTH_ROUTES: {[key: string]: Route} = {
     "GET:/users/login": {
@@ -17,7 +17,8 @@ export const AUTH_ROUTES: {[key: string]: Route} = {
         callback: async (httpContext: HttpContext) => UserController.signup(httpContext)
     },
     "POST:/users/signup": {
-        callback: async (httpContext: HttpContext) => UserController.processSignup(httpContext)
+        callback: async (httpContext: HttpContext) => UserController.processSignup(httpContext),
+        middlewares: [new CsrfValidationMiddleware()]
     },
     "POST:/users/logout": {
         callback: async (httpContext: HttpContext) => UserController.processLogout(httpContext),
@@ -38,7 +39,7 @@ export class UserController {
         })
     }
 
-    public static async processLogin({ req, response }: HttpContext) {
+    public static async processLogin({ request, response }: HttpContext) {
         const schema = await Schema.create({
             email: {
                 "email": []
@@ -47,7 +48,7 @@ export class UserController {
                 "min": [8]
             }
         })
-        const body = await schema.parse<LoginPayload>(await getPostBody(req))
+        const body = await schema.parse<LoginPayload>(request.getBody())
         let user: ModelObject | null
 
         if (!body.success) {
@@ -87,13 +88,17 @@ export class UserController {
     }
 
     public static async signup({ response }: HttpContext) {
+        const csrfToken = await response.generateCsrfToken()
+
         return response.setResponse({
             contentType: "text/html",
-            body: render("./src/templates/users/signup.html")
+            body: render("./src/templates/users/signup.html", {
+                csrfInput: response.csrfInput(csrfToken)
+            })
         })
     }
 
-    public static async processSignup({ req, response }: HttpContext) {
+    public static async processSignup({ request, response }: HttpContext) {
         const schema = await Schema.create({
             name: {
                 "optional": ["John Doe"]  // you can set a default value
@@ -105,7 +110,7 @@ export class UserController {
                 "myCustomMin": []  // OR "min": [8] (built-in)
             }
         })
-        const body = await schema.parse<SignupPayload>(await getPostBody(req))
+        const body = await schema.parse<SignupPayload>(request.getBody())
         let user: ModelObject | null
 
         if (!body.success) {

@@ -1,4 +1,6 @@
-import { BaseSeeder } from "../modules/database"
+import 'module-alias/register'
+
+import { BaseSeeder } from "@database"
 
 import { PostSeeder } from "./post"
 

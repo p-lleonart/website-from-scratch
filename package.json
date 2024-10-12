@@ -3,15 +3,26 @@
     "author": "Pascal Lleonart",
     "main": "src/main.ts",
     "scripts": {
-        "start": "tsc && node dist/main.js",
-        "migrate": "tsc src/migrations/index.ts --outDir ./dist && node dist/migrations/index.js",
-        "run:seeders": "tsc src/seeders/index.ts --outDir ./dist && node dist/seeders/index.js",
-        "list:routes": "tsc scripts/list_routes.ts --outDir ./dist && node dist/scripts/list_routes.js"
+        "start": "pnpm run build && node ./dist/src/main.js",
+        "start:dev": "nodemon",
+        "build": "rimraf ./dist && tsc --skipLibCheck",
+        "migrate": "pnpm run build && node dist/src/migrations/index.js",
+        "run:seeders": "pnpm run build && node dist/src/seeders/index.js",
+        "list:routes": "pnpm run build && node dist/scripts/list_routes.js"
+    },
+    "_moduleAliases": {
+        "@": "dist/src",
+        "@auth": "dist/src/modules/auth",
+        "@csrf-shield": "dist/src/modules/csrf-shield",
+        "@database": "dist/src/modules/database",
+        "@template-parser": "dist/src/modules/template-parser",
+        "@validator": "dist/src/modules/validator"
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.2",
         "@types/jsonwebtoken": "^9.0.7",
         "@types/node": "^22.5.1",
+        "nodemon": "^3.1.7",
         "typescript": "^5.5.4"
     },
     "dependencies": {
@@ -19,6 +30,8 @@
         "bcrypt": "^5.1.1",
         "dotenv": "^16.4.5",
         "jsonwebtoken": "^9.0.2",
+        "module-alias": "^2.2.3",
+        "rimraf": "^6.0.1",
         "sqlite3": "^5.1.7"
     }
 }
