@@ -48,7 +48,7 @@ export class UserController {
                 "min": [8]
             }
         })
-        const body = await schema.parse<LoginPayload>(request.getBody())
+        const body = await schema.parse<LoginPayload>(request.body)
         let user: ModelObject | null
 
         if (!body.success) {
@@ -74,7 +74,7 @@ export class UserController {
         }
 
         if (user) {
-            response = await User.login(response, user)
+            response = await User.login({ request, response }, user)
             return response.redirect("/users/dashboard")
         }
 
@@ -110,7 +110,7 @@ export class UserController {
                 "myCustomMin": []  // OR "min": [8] (built-in)
             }
         })
-        const body = await schema.parse<SignupPayload>(request.getBody())
+        const body = await schema.parse<SignupPayload>(request.body)
         let user: ModelObject | null
 
         if (!body.success) {
@@ -139,18 +139,18 @@ export class UserController {
             })
         }
 
-        response = await User.login(response, user)
+        response = await User.login({ request, response }, user)
         return response.redirect("/users/dashboard")
     }
 
-    public static async processLogout({ req, response }: HttpContext) {
-        const user = await User.getCurrentUser(req)
-        response = await User.logout(response, user!)  // user exists in all cases thanks to the middleware
+    public static async processLogout({ request, response }: HttpContext) {
+        const user = await User.getCurrentUser(request)
+        response = await User.logout({ request, response }, user!)  // user exists in all cases thanks to the middleware
         return response.redirect("/users/login")
     }
 
-    public static async dashboard({ req, response }: HttpContext) {
-        const user = await User.getCurrentUser(req)
+    public static async dashboard({ request, response }: HttpContext) {
+        const user = await User.getCurrentUser(request)
         
         return response.setResponse({
             contentType: "text/html",

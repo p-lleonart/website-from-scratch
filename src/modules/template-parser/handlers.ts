@@ -29,7 +29,9 @@ function forLoopHandler (template: string, context: Context) {
 
         if (Array.isArray(items)) {
             return items.map(item => {
-                return content.replace(new RegExp(`{{${itemName}}}`, 'g'), item)
+                const newContext = { ...context }
+                newContext[itemName] = item
+                return parse(content, newContext)
             }).join('')
         }
         new WrongTypeVariable(arrayName, typeof arrayName, "Array")

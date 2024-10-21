@@ -1,4 +1,3 @@
-import { getCookie, setCookie } from "@/helpers"
 import { render } from "@template-parser"
 import { HttpContext } from "@/types"
 
@@ -10,26 +9,26 @@ export class ContactController {
             body: render("./src/templates/contact.html", {
                 name: "john doe",
                 message: "hello, world!",
-                messangesSent: 3,
+                messagesSent: 3,
                 msgs: ["hi", "hi1", "hi2"]
             })
         })
     }
 
-    static async store({ req, request, response }: HttpContext) {
-        const message = request.getBody()
+    static async store({ request, response }: HttpContext) {
+        const message = request.body
         
         console.info(`message received (from ${message.name}): ${message.content}`)
 
-        const cookie = getCookie(req, "MessagesSent")
+        const cookie = request.cookieHandler.getCookie("MessagesSent")
         const messagesSent = cookie
             ? parseInt(cookie, 10)
             : 0
 
-        response.setHeaders(setCookie(response.getHeaders(), {
+        response = request.cookieHandler.setCookie(response, {
             name: "MessagesSent",
             value: `${messagesSent + 1}`
-        }))
+        })
 
         return response.setResponse({
             contentType: "text/html",

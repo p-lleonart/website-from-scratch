@@ -15,7 +15,7 @@ function getEndpoint(method: string | undefined, url: URL) {
     let path: string
 
     if (!method) method = 'GET'
-    if (url.pathname[url.pathname.length - 1] === "/") path = url.pathname.slice(0, -1)
+    if (url.pathname !== "/" && url.pathname[url.pathname.length - 1] === "/") path = url.pathname.slice(0, -1)
     else path = url.pathname
 
     return `${method}:${path}`
@@ -27,9 +27,11 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
     /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
     const endpoint = getEndpoint(req.method, url)
     
-    let response = new Response()
-    let request = await Request.init(req)
-    let httpContext: HttpContext = {req, request, response}
+    let httpContext: HttpContext = {
+        req,
+        request: await Request.init(req),
+        response: new Response()
+    }
 
     try {
         if(ROUTES[endpoint] !== undefined) {
@@ -40,13 +42,11 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
                 let i = 0
                 while (!returnResponseAfterMiddleware && i < route.middlewares.length) {
                     const {
-                        mReq,
-                        mResponse,
+                        httpContext: mHttpContext,
                         returnResponse
                     } = await route.middlewares[i].handle(httpContext)
 
-                    httpContext.req = mReq
-                    httpContext.response = mResponse
+                    httpContext = mHttpContext
                     returnResponseAfterMiddleware = returnResponse
                     i++
                 }
@@ -62,10 +62,10 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
         httpContext.response = await ErrorsController.serverError(httpContext, {errorMessage: e.message})
     }
     
-    console.log(`[${endpoint}] ${httpContext.response.getStatusCode()}`)
+    console.log(`[${endpoint}] ${httpContext.response.statusCode}`)
 
-    res.writeHead(httpContext.response.getStatusCode(), httpContext.response.getHeaders())
-    res.write(httpContext.response.getBody())
+    res.writeHead(httpContext.response.statusCode, httpContext.response.headers)
+    res.write(httpContext.response.body)
 
     res.end()
 })

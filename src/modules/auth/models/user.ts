@@ -2,10 +2,10 @@ import { AuthToken } from "./auth_token"
 import { compareSync, genSaltSync, hashSync } from "bcrypt"
 import { BaseModel, DBHandler, ModelObject, Table } from "@database"
 import { env } from "@/env"
-import { deleteCookie, getCookie, randomId, setCookie } from "@/helpers"
-import { IncomingMessage } from "http"
+import { randomId } from "@/helpers"
 import { AddUserMigration } from "@auth/migrations/add_users"
-import { Response } from "@/response"
+import { Request } from "@/request"
+import { HttpContext } from "@/types"
 
 
 const AUTH_TOKEN_COOKIE_EXPIRES = parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)
@@ -50,11 +50,11 @@ export class User extends BaseModel {
      * 
      * E.g : `response = await User.login(response, user)`
      * 
-     * @param response Needed to set the cookie that will contain the auth token
+     * @param httpContext Needed to set the cookie that will contain the auth token
      * @param user 
      * @returns response
      */
-    public static async login(response: Response, user: ModelObject) {
+    public static async login({ request, response }: HttpContext, user: ModelObject) {
         const authTokensFromDb = await AuthToken.findBy('userId', user.id as string)
         let authToken: ModelObject
 
@@ -64,19 +64,16 @@ export class User extends BaseModel {
             authToken = authTokensFromDb[0]
         }
 
-        response.setHeaders(
-            setCookie(response.getHeaders(), {
-                name: AUTH_TOKEN_COOKIE_NAME,
-                value: encodeURIComponent(authToken.token as string),
-                httpOnly: true,
-                secure: true,
-                expires: new Date(Date.now() + AUTH_TOKEN_COOKIE_EXPIRES).toUTCString()
-            })
-        )
-        return response
+        return request.cookieHandler.setCookie(response, {
+            name: AUTH_TOKEN_COOKIE_NAME,
+            value: encodeURIComponent(authToken.token as string),
+            httpOnly: true,
+            secure: true,
+            expires: new Date(Date.now() + AUTH_TOKEN_COOKIE_EXPIRES).toUTCString()
+        })
     }
 
-    public static async logout(response: Response, user: ModelObject) {
+    public static async logout({ request, response }: HttpContext, user: ModelObject) {
         const authTokensFromDb = await AuthToken.findBy('userId', user.id as string)
         let authToken: ModelObject
 
@@ -84,13 +81,11 @@ export class User extends BaseModel {
         
         authToken = authTokensFromDb[0]
         await AuthToken.destroy(authToken.id)
-        response.setHeaders(deleteCookie(response.getHeaders(), AUTH_TOKEN_COOKIE_NAME))
-
-        return response
+        return request.cookieHandler.deleteCookie(response, AUTH_TOKEN_COOKIE_NAME)
     }
 
-    public static async getCurrentUser(req: IncomingMessage) {
-        const token = getCookie(req, AUTH_TOKEN_COOKIE_NAME)
+    public static async getCurrentUser(request: Request) {
+        const token = request.cookieHandler.getCookie(AUTH_TOKEN_COOKIE_NAME)
         if (!token) return null
 
         const userId = await AuthToken.getUserIdFromToken(decodeURIComponent(token))

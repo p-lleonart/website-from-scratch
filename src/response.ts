@@ -4,14 +4,14 @@ import { type Headers } from "./types"
 
 
 export class Response {
-    private statusCode: number
-    private headers: Headers
-    private body: string
+    #statusCode: number
+    #headers: Headers
+    #body: string
 
     constructor() {
-        this.statusCode = 200
-        this.headers = {}
-        this.body = ""
+        this.#statusCode = 200
+        this.#headers = {}
+        this.#body = ""
     }
 
     /**
@@ -21,8 +21,8 @@ export class Response {
      * @returns 
      */
     public redirect(url: string, statusCode: number = 302): Response {
-        this.statusCode = 302
-        this.headers['Location'] = url
+        this.#statusCode = statusCode
+        this.#headers['Location'] = url
         return this
     }
 
@@ -31,10 +31,10 @@ export class Response {
         body: string,
         statusCode?: number,
     }) {
-        if (options.statusCode) this.setStatusCode(options.statusCode)
+        if (options.statusCode) this.statusCode = options.statusCode
 
         this.setHeader("Content-Type", options.contentType)
-        this.setBody(options.body)
+        this.#body = options.body
         return this
     }
 
@@ -70,42 +70,42 @@ export class Response {
 
     /** Getters and setters */
 
-    public setStatusCode(statusCode: number) {
+    set statusCode(statusCode: number) {
         if (100 > statusCode || statusCode > 600) throw Error('[app] error: the status code must belong to [100;599]')
-        this.statusCode = statusCode
+        this.#statusCode = statusCode
     }
 
     /**
      * Use this carefully, it overrides completly all other headers.
      * @param headers 
      */
-    public setHeaders(headers: Headers) {
-        this.headers = headers
+    set headers(headers: Headers) {
+        this.#headers = headers
     }
 
     public setHeader(headerName: string, value: string) {
-        this.headers[headerName] = value
+        this.#headers[headerName] = value
     }
 
-    public setBody(body: string) {
-        this.body = body
+    set body(body: string) {
+        this.#body = body
     }
 
-    public getStatusCode() {
-        return this.statusCode
+    get statusCode() {
+        return this.#statusCode
     }
 
-    public getHeaders() {
-        return this.headers
+    get headers() {
+        return this.#headers
     }
 
-    public getHeader(headerName: string) {
-        if (this.headers[headerName]) return this.headers[headerName]
+    public header(headerName: string) {
+        if (this.#headers[headerName]) return this.#headers[headerName]
 
         return null
     }
 
-    public getBody() {
-        return this.body
+    get body() {
+        return this.#body
     }
 }

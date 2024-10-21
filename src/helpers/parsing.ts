@@ -1,4 +1,3 @@
-import { IncomingMessage } from "http"
 import { parse } from "querystring"
 
 
@@ -52,20 +51,4 @@ export function parseCookieData(raw: string | undefined): {[key: string]: string
  */
 export function parseRequestData(raw: string): {[key: string]: string} {
     return parse(raw) as {[key: string]: string}
-}
-
-export async function extractPostRequestData(req: IncomingMessage): Promise<string> {
-    let body = await new Promise<string>((resolve, reject) => {
-        let _body: string = ""
-
-        req.on('data', chunk => {
-            _body += chunk.toString()
-        })
-      
-        req.on('end', () => {
-            resolve(_body)
-        })
-    })
-
-    return body
 }

@@ -21,13 +21,18 @@ export type Headers = {
 }
 
 export type HttpContext = {
-    req: IncomingMessage
+    req?: IncomingMessage
     request: Request
     response: Response
 }
 
+export type MiddlewareHandlerContract = {
+    httpContext: HttpContext
+    returnResponse: boolean
+}
+
 export type Route = {
-    callback: Function
+    callback: (httpContext: HttpContext) => Promise<Response>
     description?: string
     middlewares?: Middleware[]
 }

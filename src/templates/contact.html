@@ -25,6 +25,9 @@
     {{#if msgs}}
         {{#for msg in msgs}}
             <p>{{msg}}</p>
+            {{#if messagesSent}}
+                <p>You sent us a lot of messages ({{messagesSent}}), thanks</p>
+            {{/if}}
         {{/for}}
     {{/if}}
 

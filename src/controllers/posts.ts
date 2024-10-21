@@ -1,4 +1,3 @@
-import { getUrlParam } from "@/helpers"
 import { Post } from "@/models/post"
 import { ModelObject } from "@database/types"
 import { render } from "@template-parser"
@@ -32,8 +31,8 @@ export class PostController {
         })
     }
 
-    static async get({ req, response }: HttpContext) {
-        const postId = getUrlParam(req, 'id')
+    static async get({ request, response }: HttpContext) {
+        const postId = request.params.get('id')
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
@@ -57,7 +56,7 @@ export class PostController {
     }
 
     static async store({ request, response }: HttpContext) {
-        const body = request.getBody()
+        const body = request.body
         const post = { id: `${Date.now()}`, title: body.title, content: body.content }
 
         Post.create(post)
@@ -69,8 +68,8 @@ export class PostController {
         })
     }
 
-    static async editView({ req, response }: HttpContext) {
-        const postId = getUrlParam(req, 'id')
+    static async editView({ request, response }: HttpContext) {
+        const postId = request.params.get('id')
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
@@ -88,9 +87,9 @@ export class PostController {
         })
     }
     
-    static async edit({ req, request, response }: HttpContext) {
-        const postId = getUrlParam(req, 'id')
-        const body = request.getBody()
+    static async edit({ request, response }: HttpContext) {
+        const postId = request.params.get('id')
+        const body = request.body
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
@@ -102,8 +101,8 @@ export class PostController {
         })
     }
 
-    static async delete({ req, response }: HttpContext) {
-        const postId = getUrlParam(req, 'id')
+    static async delete({ request, response }: HttpContext) {
+        const postId = request.params.get('id')
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
         await Post.destroy(postId)

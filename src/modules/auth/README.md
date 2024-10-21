@@ -19,7 +19,7 @@ You can now create a controller.
 
 Here's a demonstration of a view that creates a user:
 ```ts
-    const body = await getPostBody(req)
+    const body = request.body
     let user: ModelObject | null
 
     // body validation
@@ -30,11 +30,11 @@ Here's a demonstration of a view that creates a user:
         // handle error
     }
 
-    response = await User.login(response, user)
-    return redirect(response, "/users/dashboard")
+    response = await User.login({ request, response }, user)
+    return response.redirect("/users/dashboard")
 ```
 
-Please note that the creation part is quite standart, let's focus on the `User.login(response, user)`.
+Please note that the creation part is quite standart, let's focus on the `User.login({ request, response }, user)`.
 
 This method sets a cookie containing the authentication token after a user login. This cookie will serve to the auth middleware to see if the user is allowed to access to a page (it will get the token out of it and then try to get the user). Furthermore, the token will be stored in the database.
 
@@ -42,7 +42,7 @@ This method sets a cookie containing the authentication token after a user login
 
 There's a part of a login view:
 ```ts
-    const body = await getPostBody(req)
+    const body = request.body
     let user: ModelObject | null
     
     // body validation
@@ -54,8 +54,8 @@ There's a part of a login view:
     }
 
     if (user) {
-        response = await User.login(response, user)
-        return redirect(response, "/users/dashboard")
+        response = await User.login({ request, response }, user)
+        return response.redirect("/users/dashboard")
     }
 
     // wrong credentials
@@ -70,9 +70,9 @@ Now, let's have a look about `User.verifyCredentials()`. This method will verify
 
 Some code from a logout view:
 ```ts
-    const user = await User.getCurrentUser(req)
-    response = await User.logout(response, user!)  // user exists in all cases thanks to the middleware
-    return redirect(response, "/users/login")
+    const user = await User.getCurrentUser(request)
+    response = await User.logout({ request, response }, user!)  // user exists in all cases thanks to the middleware
+    return response.redirect("/users/login")
 ```
 
 First of all, we get the current user logged in with the `User.getCurrentUser()` method (we'll use this method to get the current user if we need them).
@@ -87,20 +87,23 @@ Now let's have a look on the Auth middleware (you can learn how does a middlewar
 
 ```ts
 export class AuthMiddleware extends Middleware {
-    public async handle(req: IncomingMessage, response: Response) {
-        const user = await User.getCurrentUser(req)
+    public async handle({ req, request, response }: HttpContext, response: Response) {
+        const user = await User.getCurrentUser(request)
 
         if (!user) {
-            response.headers = deleteCookie(response.headers, AUTH_TOKEN_COOKIE_NAME)
+            response = request.cookieHandler.deleteCookie(response, env.AUTH_TOKEN_COOKIE_NAME)
             response.statusCode = 403
             return {
-                mReq: req,
-                mResponse: redirect(response, "/users/login?loginRequired"),
+                httpContext: {
+                    req,
+                    request,
+                    response: response.redirect("/users/login?loginRequired"),
+                },
                 returnResponse: true
             }
         }
 
-        return { mReq: req, mResponse: response, returnResponse: false}
+        return { httpContext: { req, request, response }, returnResponse: false}
     }
 }
 ```
@@ -117,11 +120,10 @@ You can register a middleware on a route directly:
 export const ROUTES: {[key: string]: Route} = {
     // ...
     "GET:/users/dashboard": {
-            callback: async (req: IncomingMessage, response: Response) => UserController.dashboard(req, response),
-            middlewares: [
-                new AuthMiddleware()
-            ]
-        }
+        callback: async (httpContext: HttpContext) => UserController.dashboard(httpContext),
+        middlewares: [
+            new AuthMiddleware()
+        ]
     }
     // ...
 }
@@ -135,7 +137,7 @@ Note: the middleware will be processed in the same order as they were set:
 export const ROUTES: {[key: string]: Route} = {
     // ...
     "GET:/users/dashboard": {
-            callback: async (req: IncomingMessage, response: Response) => UserController.dashboard(req, response),
+            callback: async (httpContext: HttpContext) => UserController.dashboard(httpContext),
             middlewares: [
                 new AuthMiddleware(),
                 new SomeMiddleware(),

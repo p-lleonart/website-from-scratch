@@ -189,7 +189,7 @@ export class Post extends BaseModel {
 }
 ```
 
-Please note that you can override every method of BaseModel if you need something more complex.
+Please note that you can override every method of BaseModel if you need something more complex (you can see an example in the Auth module).
 
 ### Get
 

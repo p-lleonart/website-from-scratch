@@ -9,9 +9,9 @@ The syntax is pretty similar to Svelte one's.
 In `./src/controllers/template-demo.ts`:
 ```ts
 export class TemplateDemoController {
-    static async view(req: IncomingMessage, response: Response): Promise<Response> {
+    static async view({ request, response}: HttpContext): Promise<Response> {
         const messagesSent = 3
-        return setResponse(response, {
+        return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/demo.html", {
                 name: "john doe",
@@ -188,7 +188,9 @@ function forLoopHandler (template: string, context: Context) {  // the handler f
 
         if (Array.isArray(items)) {
             return items.map(item => {
-                return content.replace(new RegExp(`{{${itemName}}}`, 'g'), item)
+                const newContext = { ...context }
+                newContext[itemName] = item
+                return parse(content, newContext)
             }).join('')
         }
         new WrongTypeVariable(arrayName, typeof arrayName, "Array")
