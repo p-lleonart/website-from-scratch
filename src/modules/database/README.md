@@ -186,6 +186,16 @@ const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE
 
 export class Post extends BaseModel {
     public static table: Table = (new AddPostMigration(dbHandler)).getTable()  // this is for avoid the rewriting of the table
+
+    // if your private key isn't 'id', change it there
+    protected idCol: string = 'your_private_key_column_name'
+    
+    // don't forget to declare the fields in the model
+    declare id: string
+
+    declare title: string
+
+    declare content: string
 }
 ```
 
@@ -195,53 +205,77 @@ Please note that you can override every method of BaseModel if you need somethin
 
 There's many ways to get datas from database with this system.
 
-#### Model.find(id: string | number, idCol: string = 'id'): Promise<ModelObject>
+#### Model.find(id: string | number): Promise<BaseModel> (static)
 
 You can get an item with its primary key (id param is for the value, idCol is for the column name of the primary key, if it's not 'id').
 
-#### Model.findBy(key: string, value: string, operator: Operator = '='): Promise<ModelObject[]>
+#### Model.findBy(key: string, value: string, operator: Operator = '='): Promise<BaseModel[]> (static)
 
 You can get many items using this function (key param stands for the column name, the value stands for the value to be compared, and the operator stands for the operation between key and the value)
 
-#### Model.findMany(key: string, value: string, operator: Operator = '='): Promise<ModelObject[]>
+#### Model.findMany(key: string, value: string, operator: Operator = '='): Promise<BaseModel[]> (static)
 
 Same as `Model.findBy()`
 
-#### Model.findWithSql(condition: string): Promise<ModelObject[]>
+#### Model.findWithSql(condition: string): Promise<BaseModel[]> (static)
 
 Supposed to return an array of models selected with a SQL selection, `condition`.
 
 WARNING: escaping not provided. Consider this feature as experimental.
 
-#### Model.findAll(): Promise<ModelObject[]>
+#### Model.findAll(): Promise<BaseModel[]> (static)
 
 Returns all items of a table.
 
 ### Create
 
-#### Model.create(options: ModelObject): Promise<void>
+#### Model.create(options: ModelObject): Promise<BaseModel> (static)
 
-Creates a new object in the database.
+Creates a new object in the database and returns it.
 
 ### Edit/save
 
-#### Model.save(id: string | number, newItem: ModelObject, idCol: string = 'id'): Promise<ModelObject>
+#### model.save(): Promise<void>
 
-Identifies the item to edit with `id` and `idCol`, and then updates it.
+Let's have a demo:
 
-Returns the edited item after edition, returns `undefined` if the item doesn't exist.
+```ts
+    const post = new Post()
+    post.id = "...."
+    post.title = "hello there"
+    post.content = "."
+
+    // right now my model ("post") isn't stocked in the db
+    post.save()
+
+    // now it is
+
+    post.content = "new content" // the update isn't stocked in the db, but the new value is stocked in the model's data
+
+    post.save() // the changes have been stocked in the db
+```
 
 ### Delete
 
-#### Model.destroy(id: string | number, idCol: string = 'id'): Promise<void>
+#### model.destroy(): Promise<void>
 
 Destroys the item specified.
 
+### Format data
+
+#### model.toObject(): ModelObject
+
+Returns the model data stocked in model.data, not the data from db (the difference is that the model.data may be different than db because it stores values updates before saving in the db).
+
+#### model.toJson(): string
+
+Returns the model data stocked in model.data as JSON.
+
 ### Serializing
 
-#### Model.serialize(model: string | number | ModelObject, fields: Serialize, idCol: string = 'id'): Promise<ModelObject>
+#### model.serialize(fields: Serialize): ModelObject | undefined
 
-Serializes the item specified (you can specify an id or an item) according to fields.
+Serializes the model according to provided fields.
 
 This is the typing of fields:
 ```ts
@@ -255,13 +289,13 @@ type Serialize = {
 
 There's a little example:
 ```ts
-const posts = await Post.findAll()
+const posts = await Post.findAll() as Post[]
 
 const postsSerialized: ModelObject[] = await new Promise((resolve, reject) => {
     let serialized: ModelObject[] = []
 
     posts.forEach(async post => {
-        const postSerialized = await Post.serialize(post, {
+        const postSerialized = post.serialize({
             id: {
                 serializeAs: "postId"
             },
