@@ -1,6 +1,5 @@
 import { AuthMiddleware, User } from "@auth"
 import { CsrfValidationMiddleware } from "@csrf-shield"
-import { ModelObject } from "@database"
 import { render } from "@template-parser"
 import { Schema } from "@validator"
 import type { LoginPayload, SignupPayload } from "./types"
@@ -49,7 +48,7 @@ export class UserController {
             }
         })
         const body = await schema.parse<LoginPayload>(request.body)
-        let user: ModelObject | null
+        let user: User | null
 
         if (!body.success) {
             return response.setResponse({
@@ -62,7 +61,7 @@ export class UserController {
         }
 
         try {
-            user = await User.verifyCrendentials(body.data.email, body.data.password)
+            user = await User.verifyCrendentials(body.data.email, body.data.password) as User
         } catch (err: any) {
             return response.setResponse({
                 contentType: "text/html",
@@ -93,7 +92,7 @@ export class UserController {
         return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/users/signup.html", {
-                csrfInput: response.csrfInput(csrfToken)
+                csrfInput: csrfToken.formatInput()
             })
         })
     }
@@ -111,7 +110,7 @@ export class UserController {
             }
         })
         const body = await schema.parse<SignupPayload>(request.body)
-        let user: ModelObject | null
+        let user: User | null
 
         if (!body.success) {
             return response.setResponse({
@@ -128,7 +127,7 @@ export class UserController {
                 name: body.data.name,
                 email: body.data.email,
                 password: body.data.password
-            })
+            }) as User
         } catch (err: any) {
             return response.setResponse({
                 contentType: "text/html",
@@ -144,17 +143,19 @@ export class UserController {
     }
 
     public static async processLogout({ request, response }: HttpContext) {
-        const user = await User.getCurrentUser(request)
+        const user = await User.getCurrentUser(request) as User
         response = await User.logout({ request, response }, user!)  // user exists in all cases thanks to the middleware
         return response.redirect("/users/login")
     }
 
     public static async dashboard({ request, response }: HttpContext) {
-        const user = await User.getCurrentUser(request)
+        const user = await User.getCurrentUser(request) as User
+
+        console.log("user name :", user.name)
         
         return response.setResponse({
             contentType: "text/html",
-            body: render("./src/templates/users/dashboard.html", user!)
+            body: render("./src/templates/users/dashboard.html", user.toObject())  // we can send only a ModelObject in the context
         })
     }
 }

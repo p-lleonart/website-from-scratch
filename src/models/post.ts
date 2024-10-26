@@ -6,4 +6,10 @@ const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE
 
 export class Post extends BaseModel {
     public static table: Table = (new AddPostMigration(dbHandler)).getTable()
+
+    declare id: string
+
+    declare title: string
+
+    declare content: string
 }

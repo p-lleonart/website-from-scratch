@@ -5,6 +5,7 @@ import { env } from "@/env"
 import { randomId } from "@/helpers"
 import { AddUserMigration } from "@auth/migrations/add_users"
 import { Request } from "@/request"
+import { Response } from "@/response"
 import { HttpContext } from "@/types"
 
 
@@ -21,7 +22,15 @@ const saltRounds = env.SALT_ROUNDS ? parseInt(env.SALT_ROUNDS) : 10
 export class User extends BaseModel {
     public static table: Table = (new AddUserMigration(dbHandler)).getTable()
 
-    public static async create(options: {name: string, email: string, password: string}) {
+    declare id: string
+
+    declare name: string
+
+    declare email: string
+
+    declare password: string
+
+    public static async create(options: {name: string, email: string, password: string}): Promise<User> {
         const usersFromDb = await User.findBy('email', options.email)
         if(!usersFromDb || usersFromDb.length > 0) {
             throw Error("Email already taken")
@@ -31,16 +40,18 @@ export class User extends BaseModel {
         const hash = hashSync(options.password, salt)
         const id = randomId('usr')
 
-        return this.table.add({ id, name: options.name, email: options.email, password: hash})
+        const user = new User()
+        user._setDatas(await this.table.add({ id, name: options.name, email: options.email, password: hash}))
+        return user
     }
 
-    public static async verifyCrendentials(email: string, password: string) {
-        const user = await User.findBy("email", email)
-        if (!user || !user[0]) throw Error("User doesn't exist")
+    public static async verifyCrendentials(email: string, password: string): Promise<User | null> {
+        const user = (await User.findBy("email", email))[0] as User
+        if (!user) throw Error("User doesn't exist")
         
-        const match = compareSync(password, user[0].password as string)
+        const match = compareSync(password, user.password as string)
 
-        if (match) return user[0]
+        if (match) return user
 
         return null
     }
@@ -54,14 +65,11 @@ export class User extends BaseModel {
      * @param user 
      * @returns response
      */
-    public static async login({ request, response }: HttpContext, user: ModelObject) {
-        const authTokensFromDb = await AuthToken.findBy('userId', user.id as string)
-        let authToken: ModelObject
+    public static async login({ request, response }: HttpContext, user: User): Promise<Response> {
+        let authToken = (await AuthToken.findBy('userId', user.id as string))[0] as AuthToken
 
-        if (!authTokensFromDb || !authTokensFromDb[0]) {
-            authToken = await AuthToken.create({ userId: user.id as string })
-        } else {
-            authToken = authTokensFromDb[0]
+        if (!authToken) {
+            authToken = await AuthToken.create({ userId: user.id as string }) as AuthToken
         }
 
         return request.cookieHandler.setCookie(response, {
@@ -73,24 +81,22 @@ export class User extends BaseModel {
         })
     }
 
-    public static async logout({ request, response }: HttpContext, user: ModelObject) {
-        const authTokensFromDb = await AuthToken.findBy('userId', user.id as string)
-        let authToken: ModelObject
+    public static async logout({ request, response }: HttpContext, user: User): Promise<Response> {
+        let authToken = (await AuthToken.findBy('userId', user.id as string))[0]
 
-        if (!authTokensFromDb || !authTokensFromDb[0]) return response
+        if (!authToken) return response
         
-        authToken = authTokensFromDb[0]
-        await AuthToken.destroy(authToken.id)
+        await authToken.destroy()
         return request.cookieHandler.deleteCookie(response, AUTH_TOKEN_COOKIE_NAME)
     }
 
-    public static async getCurrentUser(request: Request) {
+    public static async getCurrentUser(request: Request): Promise<User | undefined> {
         const token = request.cookieHandler.getCookie(AUTH_TOKEN_COOKIE_NAME)
-        if (!token) return null
+        if (!token) return undefined
 
         const userId = await AuthToken.getUserIdFromToken(decodeURIComponent(token))
-        if (!userId) return null
+        if (!userId) return undefined
 
-        return await User.find(userId as string)
+        return await User.find(userId as string) as User
     }
 }

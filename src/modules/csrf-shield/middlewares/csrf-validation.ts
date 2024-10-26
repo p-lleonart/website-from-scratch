@@ -12,7 +12,7 @@ export default class CsrfValidationMiddleware extends Middleware {
 
             if (csrfToken) {
                 if (csrfToken.token === reqToken) {
-                    await CsrfToken.destroy(csrfToken.id.toString())
+                    await csrfToken.destroy()
                     return {httpContext: { req, request, response }, returnResponse: false}
                 }
             }

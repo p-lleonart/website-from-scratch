@@ -6,6 +6,7 @@
         "start": "pnpm run build && node ./dist/src/main.js",
         "start:dev": "nodemon",
         "build": "rimraf ./dist && tsc --skipLibCheck",
+        "build:types": "tsc -d --declarationDir dist/types --declarationMap --emitDeclarationOnly",
         "migrate": "pnpm run build && node dist/src/migrations/index.js",
         "run:seeders": "pnpm run build && node dist/src/seeders/index.js",
         "list:routes": "pnpm run build && node dist/scripts/list_routes.js"

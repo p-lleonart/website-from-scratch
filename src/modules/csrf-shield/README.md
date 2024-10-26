@@ -32,7 +32,7 @@ In your controller:
         return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/path/to/template.html", {
-                csrfInput: response.csrfInput(csrfToken)
+                csrfInput: csrfToken.formatInput()
             })
         })
     }

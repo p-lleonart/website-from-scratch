@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto"
-import { BaseModel, DBHandler, ModelObject, Table } from "@database"
+import { BaseModel, DBHandler, Table } from "@database"
 import { env } from "@/env"
 import AddCsrfTokenMigration from "@csrf-shield/migrations/add_csrf_tokens"
 import { randomId } from "@/helpers"
@@ -12,39 +12,46 @@ const dbHandler = new DBHandler(env.DATABASE_NAME ? env.DATABASE_NAME : "databas
 export default class CsrfToken extends BaseModel {
     public static table: Table = (new AddCsrfTokenMigration(dbHandler)).getTable()
 
-    public static async create(): Promise<ModelObject> {
+    declare id: string
+
+    declare token: string
+
+    declare expires: number
+
+    public static async create(): Promise<CsrfToken> {
         const id = randomId("rq_")
         const token = randomBytes(32).toString('hex')
 
-        return this.table.add({
-            id,
-            token,
-            expires: Date.now() + CSRF_TOKEN_EXPIRES
-        })
+        const csrfToken = new CsrfToken()
+        csrfToken._setDatas(
+            await this.table.add({
+                id,
+                token,
+                expires: Date.now() + CSRF_TOKEN_EXPIRES
+            })
+        )
+        return csrfToken
     }
 
-    public static async find(id: string): Promise<ModelObject | undefined> {
-        const csrfToken = (await this.findBy("id", id))[0]
+    public static async find(id: string): Promise<CsrfToken | undefined> {
+        const csrfToken = (await this.findBy("id", id))[0] as CsrfToken
 
         if (!csrfToken) return undefined
 
         /** if the token is expired, delete it */
         if (parseInt(csrfToken.expires.toString(), 10) < Date.now()) {
-            await this.destroy(csrfToken.id.toString())
+            await csrfToken.destroy()
             return undefined
         }
 
         return csrfToken
     }
 
-    public static async destroy(id: string, idCol: string = 'id') {
-        const itemFromDb = (await this.findBy("id", id))[0]
-        
-        if(!itemFromDb) {
-            console.error(`[database] error: cannot destroy this item because it doesn't exist in the database.`)
-            return
-        }
-
-        return this.table.delete({ colName: idCol, value: id })
+    /**
+     * Returns the HTML format that must be added in the template to set the CSRF protection
+     */
+    public formatInput(): string {
+        return `<input name="_token" type="hidden" value="${this.token}" />
+            <input name="_reqId" type="hidden" value="${this.id}" />`
     }
 }

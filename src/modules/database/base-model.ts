@@ -1,84 +1,109 @@
 import { escapeValue } from "./helpers"
+import { handler } from "./proxy-handler"
 import { Table } from "./table"
 import type { ModelObject, Operator, Serialize } from "./types"
 
-export abstract class BaseModel {
+
+export class BaseModel {
+    protected data: ModelObject = {}
+    protected idCol: string = 'id' // to change if you want to use another name
     public static table: Table
 
-    constructor() {}
+    constructor() {
+        return new Proxy(this, handler)
+    }
 
     public static async create(options: ModelObject) {
-        return this.table.add(options)
+        const model = new this()
+        model._setDatas(await model._getTable().add(options))
+        return model
     }
 
-    public static async find(id: string | number, idCol: string = 'id'): Promise<ModelObject | undefined> {
+    public static async find(id: string | number): Promise<BaseModel | undefined> {
+        const model = new this()
         let result
         try {
-            result = await this.table.get({ colName: idCol, value: `${id}` })
+            result = await model._getTable().get({ colName: model.idCol, value: `${id}` })
         } catch (err) {
             console.error(`[database] error: BaseModel.find() : ${err}`)
+            return undefined
         }
-        return result as ModelObject
+        model._setDatas(result)
+        return model
     }
 
-    public static async findBy(key: string, value: string, operator: Operator = '='): Promise<ModelObject[]> {
-        let result: ModelObject[] = []
+    public static async findBy(key: string, value: string, operator: Operator = '='): Promise<BaseModel[]> {
+        const model = new this()
+        let models: BaseModel[] = []
+        let results: ModelObject[] = []
+
         try {
-            result = await this.table.getBy(`${escapeValue(key)} ${operator} '${escapeValue(value)}'`)
+            results = await model._getTable().getBy(`${escapeValue(key)} ${operator} '${escapeValue(value)}'`)
         } catch (err) {
             console.error(`[database] error: BaseModel.findBy() : ${(err as Error).message}`)
+            return []
         }
-        return result
-    }
+        
+        for (const result of results) {
+            const _model = new this()
+            _model._setDatas(result)
+            models.push(_model)
+        }
 
-    public static async findMany(key: string, value: string, operator: Operator = '='): Promise<ModelObject[]> {
-        return this.findBy(key, value, operator)
+        return models
     }
 
     /** 
      * WARNING: this is not fully implemented.
      */
-    public static async findWithSql(condition: string): Promise<ModelObject[]> {
-        return this.table.getBy(condition)
+    public static async findWithSql(condition: string): Promise<BaseModel[]> {
+        let models = []
+        const model = new this()
+        const results = await model._getTable().getBy(condition)
+
+        for (const result of results) {
+            const _model = new this()
+            _model._setDatas(result)
+            models.push(_model)
+        }
+
+        return models
     }
 
-    public static async findAll(): Promise<ModelObject[]> {
-        return this.table.getAll()
+    public static async findAll(): Promise<BaseModel[]> {
+        let models = []
+        const model = new this()
+        const results = await model._getTable().getAll()
+
+        for (const result of results) {
+            const _model = new this()
+            _model._setDatas(result)
+            models.push(_model)
+        }
+
+        return models
     }
 
     /**
      * Serialize an object with the specified fields.
-     * @param model 
      * @param fields 
-     * @param idCol not mandatory, default: 'id'
      * @returns 
      */
-    public static async serialize(model: string | number | ModelObject, fields: Serialize, idCol: string = 'id'): Promise<ModelObject | undefined> {
-        /** if model is an id, get the item from db */
-        if (!(model instanceof Object)) {
-            const _model = await this.find(model)
+    public serialize(fields: Serialize): ModelObject | undefined {
+        return Object.keys(this.data).reduce<ModelObject>((result, key) => {
+            if(fields[key] && this.data[key]) {
 
-            if(!_model) {
-                console.error(`[database] error: cannot serialize this item because it doesn't exist in the database. Please create it before.`)
-                return
-            }
-
-            model = _model
-        }
-
-        return Object.keys(model).reduce<ModelObject>((result, key) => {
-            if(fields[key] && model[key]) {
                 const field = fields[key]
                 const serializeAs = field.serializeAs
                 const serializedValue = field.doSerialize
-                    ? field.doSerialize(model[key])
-                    : model[key]
+                    ? field.doSerialize(this.data[key])
+                    : this.data[key]
                 
                 result[serializeAs ? serializeAs : key] = serializedValue
                 return result
             }
             
-            if(!model[key]) {
+            if(!this.data[key]) {
                 console.error(`[database] error: ${key} isn't an attribute of this model`)
                 return result
             }
@@ -87,27 +112,46 @@ export abstract class BaseModel {
         }, {} as ModelObject)
     }
 
-    /** save the item in the db after update */
-    public static async save(id: string | number, newItem: ModelObject, idCol: string = 'id') {
-        const itemFromDb = await this.find(id)
-        
-        if(!itemFromDb) {
-            console.error(`[database] error: cannot save this item because it doesn't exist in the database. Please use item.create(...) instead.`)
-            return
-        }
+    public toObject(): ModelObject {
+        return this.data
+    }
 
-        return this.table.update({ colName: idCol, value: `${id}` }, newItem)
+    public toJson() {
+        return JSON.stringify(this.data)
+    }
+
+    /** save the item in the db after update */
+    public async save(): Promise<void> {
+        this._getTable().update(
+            { colName: this.idCol, value: `${this.data[this.idCol]}` },
+            this.data
+        )
     }
 
     /** deletes the item in db */
-    public static async destroy(id: string | number, idCol: string = 'id') {
-        const itemFromDb = await this.find(id)
-        
-        if(!itemFromDb) {
-            console.error(`[database] error: cannot destroy this item because it doesn't exist in the database.`)
-            return
-        }
+    public async destroy() {
+        this._getTable().delete({ colName: this.idCol, value: `${this.data[this.idCol]}` })
+    }
 
-        return this.table.delete({ colName: idCol, value: `${id}` })
+    /**
+     * INTERNAL METHODS
+     * 
+     * The methods below (that the name begins by `_`) shouldn't be used by the developer in other places than
+     * models, please use `model.attr` instead (use the proxy).
+     */
+    public _setDatas(model: ModelObject) {
+        this.data = model
+    }
+
+    public _setData(key: string, value: string | number) {
+        this.data[key] = value
+    }
+
+    public _getData(key: string) {
+        return this.data[key]
+    }
+
+    public _getTable() {
+        return (this.constructor as typeof BaseModel).table
     }
 }

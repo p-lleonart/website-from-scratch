@@ -20,7 +20,7 @@ You can now create a controller.
 Here's a demonstration of a view that creates a user:
 ```ts
     const body = request.body
-    let user: ModelObject | null
+    let user: User | null
 
     // body validation
 
@@ -43,7 +43,7 @@ This method sets a cookie containing the authentication token after a user login
 There's a part of a login view:
 ```ts
     const body = request.body
-    let user: ModelObject | null
+    let user: User | null
     
     // body validation
 

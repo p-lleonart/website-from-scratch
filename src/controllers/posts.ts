@@ -6,12 +6,12 @@ import { HttpContext } from "@/types"
 
 export class PostController {
     static async getAll({ response }: HttpContext) {
-        const posts = await Post.findAll()
+        const posts = await Post.findAll() as Post[]
         const postsSerialized: ModelObject[] = await new Promise((resolve, reject) => {
             let serialized: ModelObject[] = []
 
             posts.forEach(async post => {
-                const postSerialized = await Post.serialize(post, {
+                const postSerialized = post.serialize({
                     id: {
                         serializeAs: "postId"
                     },
@@ -36,15 +36,15 @@ export class PostController {
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
-        const post = await Post.find(postId)
+        const post = await Post.find(postId) as Post
         // OR
-        // const post = await Post.findBy('id', postId)
+        // const post = await Post.findBy('id', postId) as Post
 
         if (!post) return response.setErrorResponse({statusCode: 404, statusMessage: "Post not found"})
 
         return response.setResponse({
             contentType: "application/json",
-            body: JSON.stringify(post)
+            body: post.toJson()
         })
     }
 
@@ -57,13 +57,13 @@ export class PostController {
 
     static async store({ request, response }: HttpContext) {
         const body = request.body
-        const post = { id: `${Date.now()}`, title: body.title, content: body.content }
+        const postData = { id: `${Date.now()}`, title: body.title, content: body.content }
 
-        Post.create(post)
+        const post = await Post.create(postData) as Post
 
         return response.setResponse({
             contentType: "application/json",
-            body: JSON.stringify(post),
+            body: post.toJson(),
             statusCode: 201
         })
     }
@@ -73,7 +73,7 @@ export class PostController {
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
-        const post: any = await Post.find(postId)
+        const post: any = await Post.find(postId) as Post
 
         if (!post) return response.setErrorResponse({statusCode: 404, statusMessage: "Post not found"})
 
@@ -93,11 +93,14 @@ export class PostController {
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
-        const newPost = await Post.save(postId, body)
+        const post = await Post.find(postId) as Post
+        post.title = body.title ? body.title : post.title
+        post.content = body.content ? body.content : post.content
+
 
         return response.setResponse({
             contentType: "application/json",
-            body: JSON.stringify(newPost)
+            body: post.toJson()
         })
     }
 
@@ -105,7 +108,8 @@ export class PostController {
         const postId = request.params.get('id')
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
-        await Post.destroy(postId)
+        const post = await Post.find(postId) as Post
+        await post.destroy()
         
         return response.setResponse({
             contentType: "application/json",

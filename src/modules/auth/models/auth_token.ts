@@ -16,28 +16,39 @@ function generateAccessToken(id: string) {
 
 export class AuthToken extends BaseModel {
     public static table: Table = (new AddAuthTokenMigration(dbHandler)).getTable()
+
+    declare id: string
+
+    declare userId: string
+
+    declare token: string
     
-    public static async create(options: {userId: string}) {
+    declare expires: number
+    
+    public static async create(options: {userId: string}): Promise<AuthToken> {
         if (!await User.find(options.userId)) {
             throw Error("User doesn't exists")
         }
 
-        const pastToken = await this.findBy('userId', options.userId)
-        if (pastToken && pastToken.length > 0) {
-            await this.destroy(pastToken[0].id)
+        const pastToken = (await AuthToken.findBy('userId', options.userId))[0] as AuthToken
+        if (pastToken && pastToken.expires > 0) {
+            await pastToken.destroy()
         }
 
         const id = randomId('atk')
 
-        return this.table.add({
+        const token = new AuthToken()
+        token._setDatas(await AuthToken.table.add({
             id,
             userId: options.userId,
             token: generateAccessToken(options.userId),
             expires: Date.now() + AUTH_TOKEN_COOKIE_EXPIRES
-        })
+        }))
+
+        return token
     }
 
-    public static async getUserIdFromToken(token: string) {
+    public static async getUserIdFromToken(token: string): Promise<string | null> {
         try {
             return new Promise((resolve) => {
                 verify(token, process.env.SECRET_KEY!, (err: any, data: any) => {
