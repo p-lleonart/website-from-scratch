@@ -1,5 +1,3 @@
-import 'module-alias/register'
-
 import { ErrorsController } from "./errors"
 import { setAssetsRoutes } from "./helpers"
 import { createServer, IncomingMessage, ServerResponse } from "http"

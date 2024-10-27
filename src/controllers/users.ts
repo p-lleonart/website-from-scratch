@@ -1,9 +1,9 @@
-import { AuthMiddleware, User } from "@auth"
-import { CsrfValidationMiddleware } from "@csrf-shield"
-import { render } from "@template-parser"
-import { Schema } from "@validator"
+import { AuthMiddleware, User } from "#auth"
+import { CsrfValidationMiddleware } from "#csrf-shield"
+import { render } from "#template-parser"
+import { Schema } from "#validator"
 import type { LoginPayload, SignupPayload } from "./types"
-import type { HttpContext, Route } from "@/types"
+import type { HttpContext, Route } from "#root/types"
 
 export const AUTH_ROUTES: {[key: string]: Route} = {
     "GET:/users/login": {

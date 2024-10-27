@@ -1,8 +1,8 @@
 import { randomBytes } from "crypto"
-import { BaseModel, DBHandler, Table } from "@database"
-import { env } from "@/env"
-import AddCsrfTokenMigration from "@csrf-shield/migrations/add_csrf_tokens"
-import { randomId } from "@/helpers"
+import { BaseModel, DBHandler, Table } from "#database"
+import { env } from "#root/env"
+import AddCsrfTokenMigration from "#csrf-shield/migrations/add_csrf_tokens"
+import { randomId } from "#root/helpers/index"
 
 
 const CSRF_TOKEN_EXPIRES = parseInt(env.CSRF_TOKEN_EXPIRES, 10)

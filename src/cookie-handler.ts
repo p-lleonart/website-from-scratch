@@ -1,4 +1,4 @@
-import { Response } from "@/response"
+import { Response } from "./response"
 import { parseCookieData } from "./helpers"
 import { Request } from "./request"
 import { Cookie } from "./types"

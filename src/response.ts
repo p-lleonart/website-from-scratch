@@ -1,4 +1,4 @@
-import { type Context, render } from "@template-parser"
+import { type Context, render } from "#template-parser"
 import { existsSync } from "node:fs"
 import { type Headers } from "./types"
 

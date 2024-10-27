@@ -1,6 +1,6 @@
-import { Middleware } from "@/middleware"
-import { HttpContext } from "@/types"
-import CsrfToken from "@csrf-shield/models/csrf-token"
+import { Middleware } from "#root/middleware"
+import { HttpContext } from "#root/types"
+import CsrfToken from "#csrf-shield/models/csrf-token"
 
 export default class CsrfValidationMiddleware extends Middleware {
     public async handle({ req, request, response }: HttpContext) {

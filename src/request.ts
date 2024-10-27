@@ -1,6 +1,6 @@
 import { CookieHandler } from "./cookie-handler"
 import { IncomingMessage } from "http"
-import { parseRequestData } from "@/helpers"
+import { parseRequestData } from "./helpers"
 
 /**
  * this is a draft actually

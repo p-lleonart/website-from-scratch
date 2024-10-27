@@ -1,4 +1,4 @@
-import { BaseMigration, DBHandler, Table } from "@database"
+import { BaseMigration, DBHandler, Table } from "#database"
 
 export default class AddCsrfTokenMigration extends BaseMigration {
     protected tableName = "csrf_tokens"

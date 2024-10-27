@@ -1,8 +1,8 @@
-import { BaseModel, DBHandler, Table } from "@database"
-import { env } from "@/env"
-import { randomId } from "@/helpers"
-import { sign, verify } from "jsonwebtoken"
-import { AddAuthTokenMigration } from "@auth/migrations/add_auth_tokens"
+import { BaseModel, DBHandler, Table } from "#database"
+import { env } from "#root/env"
+import { randomId } from "#helpers"
+import jwt from "jsonwebtoken"
+import { AddAuthTokenMigration } from "#auth/migrations/add_auth_tokens"
 import { User } from "./user"
 
 
@@ -11,7 +11,7 @@ const AUTH_TOKEN_COOKIE_EXPIRES = parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)
 const dbHandler = new DBHandler(env.DATABASE_NAME ? env.DATABASE_NAME : "database.sqlite")
 
 function generateAccessToken(id: string) {
-    return sign({ id: id }, env.SECRET_KEY!, { expiresIn: AUTH_TOKEN_COOKIE_EXPIRES })
+    return jwt.sign({ id: id }, env.SECRET_KEY!, { expiresIn: AUTH_TOKEN_COOKIE_EXPIRES })
 }
 
 export class AuthToken extends BaseModel {
@@ -51,7 +51,7 @@ export class AuthToken extends BaseModel {
     public static async getUserIdFromToken(token: string): Promise<string | null> {
         try {
             return new Promise((resolve) => {
-                verify(token, process.env.SECRET_KEY!, (err: any, data: any) => {
+                jwt.verify(token, process.env.SECRET_KEY!, (err: any, data: any) => {
                     if (err) throw err
                     resolve(data.id)
                 })

@@ -1,4 +1,4 @@
-import { HttpContext } from "@/types"
+import { HttpContext } from "#root/types"
 
 
 export class CoreController {

@@ -1,30 +1,14 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "CommonJS",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "strict": true,
     "esModuleInterop": true,
     "outDir": "./dist",
     "rootDir": ".",
+    "skipLibCheck": true,
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-
-      "@auth": ["src/modules/auth/index.ts"],
-      "@auth/*": ["src/modules/auth/*"],
-      
-      "@csrf-shield": ["src/modules/csrf-shield/index.ts"],
-      "@csrf-shield/*": ["src/modules/csrf-shield/*"],
-      
-      "@database": ["src/modules/database/index.ts"],
-      "@database/*": ["src/modules/database/*"],
-      
-      "@template-parser": ["src/modules/template-parser/index.ts"],
-      "@template-parser/*": ["src/modules/template-parser/*"],
-
-      "@validator": ["src/modules/validator/index.ts"],
-      "@validator/*": ["src/modules/validator/*"]
-    },
   },
   "include": [
     "src/**/*",

@@ -1,5 +1,5 @@
-import { Middleware } from "@/middleware"
-import { HttpContext } from "@/types"
+import { Middleware } from "#root/middleware"
+import { HttpContext } from "#root/types"
 
 
 export class TestMiddleware extends Middleware {

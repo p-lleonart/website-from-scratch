@@ -1,4 +1,4 @@
-import { BaseMigration, DBHandler, Table } from "@database"
+import { BaseMigration, DBHandler, Table } from "#database"
 
 export class AddUserMigration extends BaseMigration {
     protected tableName = "users"

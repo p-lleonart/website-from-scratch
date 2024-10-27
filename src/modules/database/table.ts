@@ -1,10 +1,10 @@
-import { Database } from "sqlite3"
+import sqlite from "sqlite3"
 
 import { getColumnsAsString } from "./helpers"
 import type { Column, DBHandlerInterface, ModelObject, PrimaryKey } from "./types"
 
 export class Table implements DBHandlerInterface {
-    private db?: Database
+    private db?: sqlite.Database
 
     constructor (
         private dbPath: string,
@@ -21,7 +21,7 @@ export class Table implements DBHandlerInterface {
     }
     
     public connectDb (dbPath: string) {
-        return new Database(dbPath, err => {
+        return new sqlite.Database(dbPath, err => {
             if (err) {
                 console.error(`[database] error: cannot connect ${dbPath} database : ${err.name} : ${err.message}`)
             }

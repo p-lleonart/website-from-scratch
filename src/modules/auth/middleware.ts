@@ -1,7 +1,7 @@
-import { env } from "@/env"
-import { Middleware } from "@/middleware"
+import { env } from "#root/env"
+import { Middleware } from "#root/middleware"
 import { User } from "./models/user"
-import { HttpContext } from "@/types"
+import { HttpContext } from "#root/types"
 
 
 export class AuthMiddleware extends Middleware {

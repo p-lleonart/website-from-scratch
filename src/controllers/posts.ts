@@ -1,7 +1,7 @@
-import { Post } from "@/models/post"
-import { ModelObject } from "@database/types"
-import { render } from "@template-parser"
-import { HttpContext } from "@/types"
+import { Post } from "#root/models/post"
+import { ModelObject } from "#database/types"
+import { render } from "#template-parser"
+import { HttpContext } from "#root/types"
 
 
 export class PostController {

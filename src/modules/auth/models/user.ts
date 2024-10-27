@@ -1,12 +1,12 @@
 import { AuthToken } from "./auth_token"
 import { compareSync, genSaltSync, hashSync } from "bcrypt"
-import { BaseModel, DBHandler, ModelObject, Table } from "@database"
-import { env } from "@/env"
-import { randomId } from "@/helpers"
-import { AddUserMigration } from "@auth/migrations/add_users"
-import { Request } from "@/request"
-import { Response } from "@/response"
-import { HttpContext } from "@/types"
+import { BaseModel, DBHandler, Table } from "#database"
+import { env } from "#root/env"
+import { randomId } from "#helpers"
+import { AddUserMigration } from "#auth/migrations/add_users"
+import { Request } from "#root/request"
+import { Response } from "#root/response"
+import { HttpContext } from "#root/types"
 
 
 const AUTH_TOKEN_COOKIE_EXPIRES = parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)

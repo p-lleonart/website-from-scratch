@@ -1,5 +1,5 @@
-import { render } from "@template-parser"
-import { HttpContext } from "@/types"
+import { render } from "#template-parser"
+import { HttpContext } from "#root/types"
 
 
 export class ContactController {

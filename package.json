@@ -2,27 +2,59 @@
     "name": "website-from-scratch",
     "author": "Pascal Lleonart",
     "main": "src/main.ts",
+    "type": "module",
     "scripts": {
-        "start": "pnpm run build && node ./dist/src/main.js",
+        "start": "pnpm build && node ./dist/main.js",
         "start:dev": "nodemon",
-        "build": "rimraf ./dist && tsc --skipLibCheck",
+        "build": "rimraf ./dist && node scripts/build.cjs && pnpm build:types",
         "build:types": "tsc -d --declarationDir dist/types --declarationMap --emitDeclarationOnly",
-        "migrate": "pnpm run build && node dist/src/migrations/index.js",
-        "run:seeders": "pnpm run build && node dist/src/seeders/index.js",
-        "list:routes": "pnpm run build && node dist/scripts/list_routes.js"
+        "migrate": "pnpm build --cmd=src/migrations/index.ts && node dist/main.js",
+        "run:seeders": "pnpm build --cmd=src/seeders/index.ts && node dist/main.js",
+        "list:routes": "pnpm build --cmd=scripts/list_routes.ts && node dist/main.js"
     },
-    "_moduleAliases": {
-        "@": "dist/src",
-        "@auth": "dist/src/modules/auth",
-        "@csrf-shield": "dist/src/modules/csrf-shield",
-        "@database": "dist/src/modules/database",
-        "@template-parser": "dist/src/modules/template-parser",
-        "@validator": "dist/src/modules/validator"
+    "imports": {
+        "#root/*": [
+            "./src/*.js"
+        ],
+        "#helpers": [
+            "./src/helpers/index.js"
+        ],
+        "#auth": [
+            "./src/modules/auth/index.js"
+        ],
+        "#auth/*": [
+            "./src/modules/auth/*.js"
+        ],
+        "#csrf-shield": [
+            "./src/modules/csrf-shield/index.js"
+        ],
+        "#csrf-shield/*": [
+            "./src/modules/csrf-shield/*.js"
+        ],
+        "#database": [
+            "./src/modules/database/index.js"
+        ],
+        "#database/*": [
+            "./src/modules/database/*.js"
+        ],
+        "#template-parser": [
+            "./src/modules/template-parser/index.js"
+        ],
+        "#template-parser/*": [
+            "./src/modules/template-parser/*.js"
+        ],
+        "#validator": [
+            "./src/modules/validator/index.js"
+        ],
+        "#validator/*": [
+            "./src/modules/validator/*.js"
+        ]
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.2",
         "@types/jsonwebtoken": "^9.0.7",
         "@types/node": "^22.5.1",
+        "esbuild": "^0.24.0",
         "nodemon": "^3.1.7",
         "typescript": "^5.5.4"
     },
@@ -31,7 +63,6 @@
         "bcrypt": "^5.1.1",
         "dotenv": "^16.4.5",
         "jsonwebtoken": "^9.0.2",
-        "module-alias": "^2.2.3",
         "rimraf": "^6.0.1",
         "sqlite3": "^5.1.7"
     }

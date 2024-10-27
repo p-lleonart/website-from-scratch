@@ -1,11 +1,11 @@
-import { Database } from "sqlite3"
+import sqlite from "sqlite3"
 
 import { getColumnsAsString, verifyCreateTableParams } from "./helpers"
 import { Table } from "./table"
 import type { AlterTable, DBHandlerInterface } from "./types"
 
 export class DBHandler implements DBHandlerInterface {
-    protected db?: Database = undefined
+    protected db?: sqlite.Database = undefined
 
     constructor (
         protected dbPath: string
@@ -20,7 +20,7 @@ export class DBHandler implements DBHandlerInterface {
     }
 
     public connectDb (dbPath: string) {
-        return new Database(dbPath, err => {
+        return new sqlite.Database(dbPath, err => {
             if (err) {
                 console.error(`[database] error: cannot connect ${dbPath} database : ${err.name} : ${err.message}`)
             }

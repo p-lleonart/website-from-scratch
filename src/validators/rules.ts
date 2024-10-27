@@ -1,4 +1,4 @@
-import type { Rule } from "@validator"
+import type { Rule } from "#validator"
 
 export const myCustomMin = (str: string) => {
     return {

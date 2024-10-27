@@ -1,11 +1,9 @@
-import 'module-alias/register'
-
-import { BaseMigration, DBHandler } from "@database"
+import { BaseMigration, DBHandler } from "#database"
 
 import { AddPostMigration } from "./add_post"
-import { AddAuthTokenMigration } from "@auth/migrations/add_auth_tokens"
-import { AddUserMigration } from "@auth/migrations/add_users"
-import { AddCsrfTokenMigration } from "@csrf-shield"
+import { AddAuthTokenMigration } from "#auth/migrations/add_auth_tokens"
+import { AddUserMigration } from "#auth/migrations/add_users"
+import { AddCsrfTokenMigration } from "#csrf-shield"
 
 const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "database.sqlite")
 const migrations: any = {
