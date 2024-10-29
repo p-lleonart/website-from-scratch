@@ -1,6 +1,7 @@
+import { createId } from "@paralleldrive/cuid2"
 import { setAssetsRoutes } from "./assets"
 import { parseBase, parseCookieData, parseRequestData } from "./parsing"
-import { createId } from "@paralleldrive/cuid2"
+import { extractRouteParams, patternToRegex } from "./router"
 
 function randomId(prefix?: string) {
     if (prefix) return `${prefix}_${createId()}`
@@ -9,9 +10,11 @@ function randomId(prefix?: string) {
 }
 
 export {
+    extractRouteParams,
     setAssetsRoutes,
     randomId,
     parseBase,
     parseCookieData,
-    parseRequestData
+    parseRequestData,
+    patternToRegex
 }

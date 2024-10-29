@@ -61,5 +61,39 @@ export const ROUTES: {[key: string]: Route} = {
         },
         middlewares: [new Test3Middleware()]
     },
-    ...AUTH_ROUTES
+    ...AUTH_ROUTES,
+
+    // TEST FOR ROUTING PARAMS
+    "GET:/hello": {
+        callback: async ({ response }: HttpContext) => {
+            return response.setResponse({
+                contentType: "text/html",
+                body: `Hello index`
+            })
+        }
+    },
+    "GET:/hello/contact": {
+        callback: async ({ response }: HttpContext) => {
+            return response.setResponse({
+                contentType: "text/html",
+                body: `Hello contact 2`
+            })
+        }
+    },
+    "GET:/hello/:name": {
+        callback: async ({ request, response }: HttpContext) => {
+            return response.setResponse({
+                contentType: "text/html",
+                body: `Hello ${request.params.name}`
+            })
+        }
+    },
+    "GET:/hello/:name/then/:hi": {
+        callback: async ({ request, response }: HttpContext) => {
+            return response.setResponse({
+                contentType: "text/html",
+                body: `Hello ${request.params.name} ${request.params.hi}`
+            })
+        }
+    },
 }

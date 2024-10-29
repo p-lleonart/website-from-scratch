@@ -1,35 +1,55 @@
 import { ErrorsController } from "./errors"
-import { setAssetsRoutes } from "./helpers"
+import { extractRouteParams, setAssetsRoutes, patternToRegex } from "./helpers"
 import { createServer, IncomingMessage, ServerResponse } from "http"
 import { Request } from './request'
 import { Response } from "./response"
-import { ROUTES } from "./routes"
+import { ROUTES as _ROUTES } from "./routes"
 import { HttpContext } from "./types"
 
 
-setAssetsRoutes(ROUTES)
-
-function getEndpoint(method: string | undefined, url: URL) {
+function getEndpoint(method: string | undefined, request: Request) {
+    const url = request.url(true) as URL
     let path: string
 
     if (!method) method = 'GET'
     if (url.pathname !== "/" && url.pathname[url.pathname.length - 1] === "/") path = url.pathname.slice(0, -1)
     else path = url.pathname
 
+    for (const key in ROUTES) {
+        const pattern = key.slice(method.length + 1)
+        const regex = ROUTES[key]._regex!  // exists because where set before server launch
+        const match = path.match(regex)
+
+        if (key.startsWith(method) && match) {
+            console.log("hi")
+            request._setParams(extractRouteParams(match, pattern))
+            return `${method}:${pattern}`
+        }
+    }
+
     return `${method}:${path}`
 }
 
-createServer(async (req: IncomingMessage, res: ServerResponse) => {
-    const url = new URL(req.url ? req.url : '/', `http://${req.headers.host}`)
 
-    /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
-    const endpoint = getEndpoint(req.method, url)
-    
+const ROUTES = await setAssetsRoutes(_ROUTES)
+
+/** set regex up (for the routes without regex) */
+Object.keys(ROUTES).forEach(key => {
+    if (!ROUTES[key]._regex) {
+        const pattern = '/' + key.split(":/")[1]
+        ROUTES[key]._regex = patternToRegex(pattern)
+    }
+})
+
+createServer(async (req: IncomingMessage, res: ServerResponse) => {
     let httpContext: HttpContext = {
         req,
         request: await Request.init(req),
         response: new Response()
     }
+
+    /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
+    const endpoint = getEndpoint(req.method, httpContext.request)
 
     try {
         if(ROUTES[endpoint] !== undefined) {

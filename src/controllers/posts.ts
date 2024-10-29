@@ -32,7 +32,7 @@ export class PostController {
     }
 
     static async get({ request, response }: HttpContext) {
-        const postId = request.params.get('id')
+        const postId = request.query.get('id')
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
@@ -69,7 +69,7 @@ export class PostController {
     }
 
     static async editView({ request, response }: HttpContext) {
-        const postId = request.params.get('id')
+        const postId = request.query.get('id')
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
@@ -88,7 +88,7 @@ export class PostController {
     }
     
     static async edit({ request, response }: HttpContext) {
-        const postId = request.params.get('id')
+        const postId = request.query.get('id')
         const body = request.body
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
@@ -105,7 +105,7 @@ export class PostController {
     }
 
     static async delete({ request, response }: HttpContext) {
-        const postId = request.params.get('id')
+        const postId = request.query.get('id')
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 
         const post = await Post.find(postId) as Post

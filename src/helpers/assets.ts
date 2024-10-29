@@ -13,8 +13,8 @@ import { HttpContext, Route } from "../types"
  * @param routes
  * @returns {void}
  */
-export function setAssetsRoutes(routes: {[key: string]: Route}): void {
-    readdir("./src/public", async (err, files) => {
+export function setAssetsRoutes(routes: {[key: string]: Route}): Promise<{[key: string]: Route}> {
+    return new Promise((resolve) => readdir("./src/public", async (err, files) => {
         if(err) throw err
 
         if(!files) return
@@ -47,5 +47,7 @@ export function setAssetsRoutes(routes: {[key: string]: Route}): void {
                 }
             }
         }
-    })
+
+        resolve(routes)
+    }))
 }

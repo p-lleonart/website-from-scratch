@@ -42,6 +42,33 @@ export const ROUTES = {
 }
 ```
 
+### Routes with params
+
+You can specify a parameter by writing `:<param name>` in the url, like in the examples below:
+
+```ts
+    "GET:/hello/:name": {
+        callback: async ({ request, response }: HttpContext) => {
+            return response.setResponse({
+                contentType: "text/html",
+                body: `Hello ${request.params.name}`
+            })
+        }
+    },
+    "GET:/hello/:name/:hi": {
+        callback: async ({ request, response }: HttpContext) => {
+            return response.setResponse({
+                contentType: "text/html",
+                body: `Hello ${request.params.name} ${request.params.hi}`
+            })
+        }
+    },
+```
+
+If you want to access to those params in the controller, you can get them from `request.params.<param>`.
+
+Nota: you cannot have two params between two `/`. E.g: this `/post/:slug-:id` won't work. Instead do `post/:slug/:id`.
+
 ### Controllers
 
 You can create controllers to split the code in many files.

@@ -1,6 +1,7 @@
 import { CookieHandler } from "./cookie-handler"
 import { IncomingMessage } from "http"
 import { parseRequestData } from "./helpers"
+import { RouteParams } from "./types"
 
 /**
  * this is a draft actually
@@ -8,7 +9,8 @@ import { parseRequestData } from "./helpers"
 export class Request {
     #body: { [key: string]: string }
     #cookieHandler: CookieHandler
-    #params: URLSearchParams
+    #query: URLSearchParams
+    #params: RouteParams = {}
 
     /**
      * Use ``Request.init()`` to create a new instance of ``Request``.
@@ -20,7 +22,7 @@ export class Request {
     ) {
         this.#body = body
         this.#cookieHandler = new CookieHandler(this)
-        this.#params = (this.url(true) as URL).searchParams
+        this.#query = (this.url(true) as URL).searchParams
     }
 
     public static async init(req: IncomingMessage) {
@@ -43,8 +45,19 @@ export class Request {
         return this.#cookieHandler
     }
 
-    get params(): URLSearchParams {
+    get params(): RouteParams {
         return this.#params
+    }
+
+    get query(): URLSearchParams {
+        return this.#query
+    }
+
+    /**
+     * This is an internal method
+     */
+    _setParams(params: RouteParams) {
+        this.#params = params
     }
 
     get headers() {

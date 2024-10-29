@@ -35,4 +35,11 @@ export type Route = {
     callback: (httpContext: HttpContext) => Promise<Response>
     description?: string
     middlewares?: Middleware[]
+
+    /** this will be set by the server at launch */
+    _regex?: RegExp
+}
+
+export type RouteParams = {
+    [key: string]: string
 }
