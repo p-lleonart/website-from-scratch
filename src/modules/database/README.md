@@ -22,9 +22,7 @@ To use them, you'll need to create a directory (if not already created) `migrati
 
 <pre>index.ts</pre>
 ```ts
-import 'module-alias/register'
-
-import { BaseMigration, DBHandler } from "@database"
+import { BaseMigration, DBHandler } from "#database"
 
 import { AddPostMigration } from "./add_post"
 
@@ -34,7 +32,6 @@ const migrations: any = {
 }
 
 Object.keys(migrations).forEach(key => BaseMigration.runMigration(key, migrations[key]))
-
 ```
 
 ### Create a migration
@@ -45,7 +42,7 @@ So, here's my migration:
 
 <pre>add-post.ts</pre>
 ```ts
-import { DBHandler, BaseMigration, Table } from "@database"
+import { DBHandler, BaseMigration, Table } from "#database"
 
 export class AddPostMigration extends BaseMigration {
     protected tableName = "posts"
@@ -151,13 +148,15 @@ const migrations: any = {
 //...
 ```
 
-Then, we need to run the migration, so we open our project in the console, and we run the command 'migrate' from `package.json` (or `tsc && node dist/migrations/index.js`). It will create the database file and run the migration after.
+Then, we need to run the migration, so we open our project in the console, and we run the command 'migrate' from `package.json`. It will create the database file and run the migration after.
 
 Nota: flags.
 
-You must specify the migration key (from the migrations object from `migrations/index.ts`), and set it on up if you want to run this migration.
+You can specify the migration key (from the migrations object from `migrations/index.ts`), and set it on up if you want to run this migration.
 
-Example (in this case): `pnpm run migrate add_post=up`, but you can put `add_post=down`. If it isn't specified, nothing happends.
+Example (in this case): `pnpm migrate add_post=up`, but you can put `add_post=down`. If it isn't specified, nothing happends.
+
+If you don't put any flag, all registred migrations that were not runned (their names aren't situated in the migrations.json at the root of the project) will be runned (mode up). If you specify a key, only the migration.s specified will be executed.
 
 ### Alter table
 
@@ -178,7 +177,7 @@ You need to create a directory named `models` and you create a new file containi
 Example: 
 <pre>post.ts</pre>
 ```ts
-import { BaseModel, DBHandler, Table } from "@database"
+import { BaseModel, DBHandler, Table } from "#database"
 
 import { AddPostMigration } from "../migrations/add_post"
 
@@ -318,7 +317,7 @@ Let's create a file `post.ts` in the directory named `seeders`.
 
 ```ts
 import { Post } from "../models/post"
-import { BaseSeeder } from "@database"
+import { BaseSeeder } from "#database"
 
 
 export class PostSeeder extends BaseSeeder {
@@ -335,7 +334,7 @@ export class PostSeeder extends BaseSeeder {
 Now, register the seeder (as for migrations):
 
 ```ts
-import { BaseSeeder } from "@database"
+import { BaseSeeder } from "#database"
 
 import { PostSeeder } from "./post"
 

@@ -26,6 +26,8 @@ export type Operator = '=' | '<>' | '!=' | '<' | '>' | '<=' | '>='
 
 export type SqlOperator = Operator | 'ALL' | 'AND' | 'ANY' | 'BETWEEN' | 'EXISTS' | 'IN' | 'LIKE' | 'NOT' | 'OR'
 
+export type MigrationActions = 'up' | 'down' | 'pass'
+
 export type PrimaryKey = {
     colName: string
     value: string

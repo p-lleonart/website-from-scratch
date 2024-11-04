@@ -11,7 +11,7 @@ import { BaseModel } from "./base-model"
 import BaseSeeder from "./base-seeder"
 import { DBHandler } from "./db-handler"
 import { verifyCreateTableParams, getColumnsAsString, escapeValue } from "./helpers"
-import BaseMigration from "./migrations"
+import BaseMigration from "./base-migration"
 import { Table } from "./table"
 import type {
     Column,

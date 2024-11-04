@@ -111,7 +111,7 @@ If you want to create a custom rule, you can create a file named `rules.ts` into
 Then, begin to implement your rules!
 
 ```ts
-import type { Rule } from "@validator"
+import type { Rule } from "#validator"
 
 export const customRule = (str: string) => {
     return {
