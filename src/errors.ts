@@ -36,9 +36,9 @@ export class ErrorsController {
         })
     }
     
-    static async serverError({ response }: HttpContext, options: {errorMessage: string}) {
+    static async serverError({ response }: HttpContext, options: { name: string, message: string, stack: string }) {
         return response.setResponse({
-            body: await ErrorsController.getTemplateProcess(500, `<h3>500: Internal server error</h3><pre>${options.errorMessage}</pre>`),
+            body: await ErrorsController.getTemplateProcess(500, `<h3>500: Internal server error</h3><pre>name: ${options.name}<br>msg: ${options.message}<br>stack: ${options.stack}</pre>`),
             contentType: "text/html",
             statusCode: 500
         })

@@ -5,6 +5,7 @@ import { Request } from './request'
 import { Response } from "./response"
 import { ROUTES as _ROUTES } from "./app/routes"
 import { HttpContext } from "./types"
+import { MiddlewareError } from "./middleware"
 
 
 function getEndpoint(method: string | undefined, request: Request) {
@@ -32,11 +33,18 @@ function getEndpoint(method: string | undefined, request: Request) {
 
 const ROUTES = await setAssetsRoutes(_ROUTES)
 
-/** set regex up (for the routes without regex) */
+/** set regex up (for the routes without regex) and next middlewares registering */
 Object.keys(ROUTES).forEach(key => {
-    if (!ROUTES[key]._regex) {
+    const route = ROUTES[key]
+    if (!route._regex) {
         const pattern = '/' + key.split(":/")[1]
-        ROUTES[key]._regex = patternToRegex(pattern)
+        route._regex = patternToRegex(pattern)
+    }
+
+    if (route.middlewares) {
+        for (let i = 1; i < route.middlewares.length; i++) {
+            route.middlewares[i - 1].setNext(route.middlewares[i])
+        }
     }
 })
 
@@ -53,30 +61,30 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
     try {
         if(ROUTES[endpoint] !== undefined) {
             const route = ROUTES[endpoint]
-            let returnResponseAfterMiddleware = false
 
-            if (route.middlewares) {
-                let i = 0
-                while (!returnResponseAfterMiddleware && i < route.middlewares.length) {
-                    const {
-                        httpContext: mHttpContext,
-                        returnResponse
-                    } = await route.middlewares[i].handle(httpContext)
+            /** response context is by default on "middleware" */
 
-                    httpContext = mHttpContext
-                    returnResponseAfterMiddleware = returnResponse
-                    i++
+            if (route.middlewares && route.middlewares.length > 0) {
+                try {
+                    /** runs all middlewares */
+                    httpContext = await route.middlewares[0].handle(httpContext)
+                } catch (e: any) {
+                    if (e instanceof MiddlewareError) {
+                        httpContext.response = httpContext.response.setResponse(e.responseData)
+                    }
                 }
             }
 
-            if (!returnResponseAfterMiddleware) {
-                httpContext.response = await ROUTES[endpoint].callback(httpContext)
+            httpContext.response._changeContext("route")
+
+            if (httpContext.response.shouldRunRouteCallback()) {
+                httpContext.response = await route.callback(httpContext)
             }
         } else {
             httpContext.response = await ErrorsController.notFound(httpContext)
         }
     } catch (e: any) {
-        httpContext.response = await ErrorsController.serverError(httpContext, {errorMessage: e.message})
+        httpContext.response = await ErrorsController.serverError(httpContext, { name: e.name, message: e.message, stack: e.stack })
     }
     
     console.log(`[${endpoint}] ${httpContext.response.statusCode}`)

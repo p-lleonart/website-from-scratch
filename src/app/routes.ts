@@ -3,7 +3,7 @@ import { ContactController } from "./controllers/contact"
 import { PostController } from "./controllers/posts"
 import { AUTH_ROUTES } from "./controllers/users"
 import { readFile } from "fs/promises"
-import { TestMiddleware, Test2Middleware, Test3Middleware } from "./middlewares/test"
+import { TestMiddleware, Test2Middleware, Test3Middleware, Test4Middleware } from "./middlewares/test"
 import { HttpContext, Route } from "#root/types"
 
 
@@ -60,6 +60,15 @@ export const ROUTES: {[key: string]: Route} = {
             })
         },
         middlewares: [new Test3Middleware()]
+    },
+    "GET:/dashboard/v2": {
+        callback: async ({ response }: HttpContext) => {
+            return response.setResponse({
+                contentType: "application/json",
+                body: JSON.stringify({msg: "Welcome on your dashboard v2!"})
+            })
+        },
+        middlewares: [new Test4Middleware()]
     },
     ...AUTH_ROUTES,
 

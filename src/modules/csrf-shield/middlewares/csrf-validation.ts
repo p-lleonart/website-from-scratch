@@ -13,18 +13,15 @@ export default class CsrfValidationMiddleware extends Middleware {
             if (csrfToken) {
                 if (csrfToken.token === reqToken) {
                     await csrfToken.destroy()
-                    return {httpContext: { req, request, response }, returnResponse: false}
+                    return super.handle({ req, request, response })
                 }
             }
         }
 
         return {
-            httpContext: {
-                req,
-                request,
-                response: response.setErrorResponse({ statusCode: 403, statusMessage: "Page expired" }),
-            },
-            returnResponse: true
+            req,
+            request,
+            response: response.setErrorResponse({ statusCode: 403, statusMessage: "Page expired" })
         }
     }
 }

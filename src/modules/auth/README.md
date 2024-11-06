@@ -87,30 +87,23 @@ Now let's have a look on the Auth middleware (you can learn how does a middlewar
 
 ```ts
 export class AuthMiddleware extends Middleware {
-    public async handle({ req, request, response }: HttpContext, response: Response) {
+    public async handle({ req, request, response}: HttpContext) {
         const user = await User.getCurrentUser(request)
 
         if (!user) {
             response = request.cookieHandler.deleteCookie(response, env.AUTH_TOKEN_COOKIE_NAME)
-            response.statusCode = 403
-            return {
-                httpContext: {
-                    req,
-                    request,
-                    response: response.redirect("/users/login?loginRequired"),
-                },
-                returnResponse: true
-            }
+            response = response.redirect("/users/login?loginRequired")
+            return { req, request, response }
         }
 
-        return { httpContext: { req, request, response }, returnResponse: false}
+        return super.handle({ req, request, response })
     }
 }
 ```
 
 So, first, it will try to get the current user. Then, if they doesn't exist, it will destroy the auth token cookie and return a redirection to the login page. If the user exists, the system will call the next middleware or the controller.
 
-Note: the `returnResponse` is here to tell to the router that they have to return the response directly after this middleware, if it's `false`, then the router will call the next middleware or the view.
+Note: in the case where user is undefined, the middleware returns the Http Context instead of calling the next middleware. It's because we don't want that the request continues. If you want to reject a request from a middleware, set a middleware exception or define the response (using `response.redirect()`, `response.setResponse()` or `response.setErrorResponse()`).
 
 ### Register middlewares
 

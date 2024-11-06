@@ -1,17 +1,20 @@
 import { type Context, render } from "#template-parser"
 import { existsSync } from "node:fs"
-import { type Headers } from "./types"
+import type { ResponseContext, Headers } from "./types"
 
 
 export class Response {
     #statusCode: number
     #headers: Headers
     #body: string
+    #sendAfterMiddleware: boolean = false
+    #context: ResponseContext
 
     constructor() {
         this.#statusCode = 200
         this.#headers = {}
         this.#body = ""
+        this.#context = "middleware"
     }
 
     /**
@@ -23,6 +26,10 @@ export class Response {
     public redirect(url: string, statusCode: number = 302): Response {
         this.#statusCode = statusCode
         this.#headers['Location'] = url
+
+        /** if the response is edited in a middleware, the server will send the response immediatly after this */
+        this.checkIfEditedDuringAMiddleware()
+        
         return this
     }
 
@@ -35,6 +42,10 @@ export class Response {
 
         this.setHeader("Content-Type", options.contentType)
         this.#body = options.body
+
+        /** cf. Response.redirect() note */
+        this.checkIfEditedDuringAMiddleware()
+
         return this
     }
 
@@ -107,5 +118,17 @@ export class Response {
 
     get body() {
         return this.#body
+    }
+
+    _changeContext(newContext: ResponseContext) {
+        this.#context = newContext
+    }
+
+    private checkIfEditedDuringAMiddleware() {
+        if (this.#context === "middleware") this.#sendAfterMiddleware = true
+    }
+
+    shouldRunRouteCallback() {
+        return !this.#sendAfterMiddleware
     }
 }

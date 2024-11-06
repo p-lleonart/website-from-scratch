@@ -142,10 +142,12 @@ import { HttpContext } from "@/types"
 export class MyMiddleware extends Middleware {
     public async handle(httpContext: HttpContext) {
         console.log("my middleware")
-        return {httpContext, returnResponse: false}
+        return super.handle(httpContext)
     }
 }
 ```
+
+The `super.handle()` intruction will call the next middleware or return the output Http context at the end of middleware execution process (you can edit the ``request`` in the middlewares).
 
 Now you can register it in routes (cf. Route section on this page).
 
@@ -157,32 +159,44 @@ There's an example of a middleware that decides to return the response right aft
 export class TestMiddleware extends Middleware {
     public async handle(httpContext: HttpContext) {
         console.log("authorization middleware")
+        const isAuthorized = false  // this is only an example
+
+        if (isAuthorized) {
+            return super.handle(httpContext)
+        }
+
         httpContext.response.setErrorResponse({
             statusCode: 403,
             statusMessage: "Unauthorized"
         })
-        return {httpContext, returnResponse: true}
+        return httpContext
     }
 }
 ```
 
-Nota: the current middleware implementation might be updated in the future, for something that looks like:
+Nota: in the case where ``isAuthorized`` is false, we define a response that will be returned directly after the calling of this middleware because we return the Http context and not the next middleware.
+
+Please note that in the "middleware" response context (aka when the middlewares are processed), if you call the response's methods ``redirect``, ``setResponse`` or ``setErrorRespone``, the view after the middleware won't be runned and the response from the last runned middleware will be send to the client.
+
+You can also do the last example using ``MiddlewareError``:
 
 ```ts
 export class TestMiddleware extends Middleware {
-    public async handle(httpContext: HttpContext, next: Function) {
+    public async handle(httpContext: HttpContext) {
         console.log("authorization middleware")
-        if (1 + 1 != 3) {
-            httpContext.response.setErrorResponse({
-                statusCode: 403,
-                statusMessage: "Unauthorized"
-            })
-            return httpContext
+        const isAuthorized = false
+
+        if (isAuthorized) {
+            return super.handle(httpContext)
         }
-        
-        return next(httpContext)
+
+        throw new MiddlewareError(403, "Not authorized", "Unauthorized")
     }
 }
 ```
 
-Where next is a function that will call the next middleware.
+The ``MiddlewareError`` will be catched and it will return the response specified in the exception:
+- responseStatus: should be an error HTTP status code
+- responseMsg: the body of the error response
+- message: the error description
+- contentType: default = "text/html"

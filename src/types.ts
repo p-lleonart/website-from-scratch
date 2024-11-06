@@ -26,10 +26,7 @@ export type HttpContext = {
     response: Response
 }
 
-export type MiddlewareHandlerContract = {
-    httpContext: HttpContext
-    returnResponse: boolean
-}
+export type ResponseContext = 'middleware' | 'route'
 
 export type Route = {
     callback: (httpContext: HttpContext) => Promise<Response>

@@ -6,4 +6,5 @@ Features:
 - improve middleware logic
 - better error handling
 - new features: files, sessions, i18n, cache,...
-- move user's files into app directory (the files that the user must create/edit to do a website are in this folder, except templates & public. DONT FORGET TO MOVE routes.ts TOO)
+- handle PROD/DEV execution times (to hide errors debug in errors templates)
+- when decorators will be fully supported, convert response.checkIfEditedDuringAMiddleware() into one

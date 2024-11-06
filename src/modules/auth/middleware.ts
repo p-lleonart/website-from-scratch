@@ -10,17 +10,10 @@ export class AuthMiddleware extends Middleware {
 
         if (!user) {
             response = request.cookieHandler.deleteCookie(response, env.AUTH_TOKEN_COOKIE_NAME)
-            response.statusCode = 403
-            return {
-                httpContext: {
-                    req,
-                    request,
-                    response: response.redirect("/users/login?loginRequired"),
-                },
-                returnResponse: true
-            }
+            response = response.redirect("/users/login?loginRequired")
+            return { req, request, response }
         }
 
-        return { httpContext: { req, request, response }, returnResponse: false}
+        return super.handle({ req, request, response })
     }
 }
