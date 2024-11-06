@@ -18,7 +18,7 @@ You can edit the name of the database file by setting a `DATABASE_NAME` in your 
 
 The migrations can help you to define the tables of your database.
 
-To use them, you'll need to create a directory (if not already created) `migrations`, with in it, an `index.ts` file.
+To use them, you'll need to create a directory (if not already created) `src/app/migrations`, with in it, an `index.ts` file.
 
 <pre>index.ts</pre>
 ```ts
@@ -134,7 +134,7 @@ You can drop a table using `this.dbHandler.dropTable(this.tableName)`.
 
 Now we finished implementing your migration, we want to run it.
 
-So we import our migration into `migrations/index.ts` and we create a new instance of the migration class in the `migrations` object:
+So we import our migration into `src/app/migrations/index.ts` and we create a new instance of the migration class in the `migrations` object:
 
 <pre>index.js</pre>
 ```ts
@@ -152,7 +152,7 @@ Then, we need to run the migration, so we open our project in the console, and w
 
 Nota: flags.
 
-You can specify the migration key (from the migrations object from `migrations/index.ts`), and set it on up if you want to run this migration.
+You can specify the migration key (from the migrations object from `src/app/migrations/index.ts`), and set it on up if you want to run this migration.
 
 Example (in this case): `pnpm migrate add_post=up`, but you can put `add_post=down`. If it isn't specified, nothing happends.
 
@@ -172,7 +172,7 @@ Nota: all the methods are static and async.
 
 ### Create a model
 
-You need to create a directory named `models` and you create a new file containing your model in it.
+You need to create a directory named `src/app/models` and you create a new file containing your model in it.
 
 Example: 
 <pre>post.ts</pre>
@@ -313,7 +313,7 @@ const postsSerialized: ModelObject[] = await new Promise((resolve, reject) => {
 
 You can create seeders if you want to create items automatically.
 
-Let's create a file `post.ts` in the directory named `seeders`.
+Let's create a file `post.ts` in the directory named `src/app/seeders`.
 
 ```ts
 import { Post } from "../models/post"

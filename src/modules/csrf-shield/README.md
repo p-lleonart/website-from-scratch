@@ -7,7 +7,7 @@ Go in `src/modules/csrf-shield`.
 
 Now edit the migrations and models in `migrations` if you need.
 
-Now you can register these migrations in `/src/migrations/index.ts` (cf. Database module).
+Now you can register these migrations in `/src/app/migrations/index.ts` (cf. Database module).
 
 Then run the migrations: `pnpm run migrate add_csrf_token=up`.
 

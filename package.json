@@ -8,13 +8,16 @@
         "start:dev": "nodemon",
         "build": "rimraf ./dist && node scripts/build.cjs",
         "build:types": "tsc -d --declarationDir dist/types --declarationMap --emitDeclarationOnly",
-        "migrate": "pnpm build --cmd=src/migrations/index.ts && node dist/main.js",
-        "run:seeders": "pnpm build --cmd=src/seeders/index.ts && node dist/main.js",
+        "migrate": "pnpm build --cmd=src/app/migrations/index.ts && node dist/main.js",
+        "run:seeders": "pnpm build --cmd=src/app/seeders/index.ts && node dist/main.js",
         "list:routes": "pnpm build --cmd=scripts/list_routes.ts && node dist/main.js"
     },
     "imports": {
         "#root/*": [
             "./src/*.js"
+        ],
+        "#app/*": [
+            "./src/app/*.js"
         ],
         "#helpers": [
             "./src/helpers/index.js"

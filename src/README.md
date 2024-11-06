@@ -6,7 +6,7 @@ This is a part of the documentation about routing, assets, middlewares and http 
 
 ### Create a new route
 
-You can add a new item in the `ROUTES` object of `src/routes.ts`:
+You can add a new item in the `ROUTES` object of `src/app/routes.ts`:
 
 ```ts
 export const ROUTES = {
@@ -131,7 +131,7 @@ Middlewares are functions that are executed before the route function and permit
 
 If you want to know if a user is logged in or not, you'll need to implement a middleware (I mean, you can do this in a controller but it's not clean because you might use the same code in other routes etc...).
 
-You can create a file at `src/middlewares` and type this code in the the file:
+You can create a file at `src/app/middlewares` and type this code in the the file:
 
 for example:
 ```ts

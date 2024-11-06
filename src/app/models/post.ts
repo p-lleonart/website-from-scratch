@@ -1,6 +1,6 @@
 import { BaseModel, DBHandler, Table } from "#database"
 
-import { AddPostMigration } from "#root/migrations/add_post"
+import { AddPostMigration } from "#app/migrations/add_post"
 
 const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "database.sqlite")
 

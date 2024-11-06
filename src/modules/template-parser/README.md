@@ -6,7 +6,7 @@ The syntax is pretty similar to Svelte one's.
 
 ## Demonstration
 
-In `./src/controllers/template-demo.ts`:
+In `./src/app/controllers/template-demo.ts`:
 ```ts
 export class TemplateDemoController {
     static async view({ request, response}: HttpContext): Promise<Response> {

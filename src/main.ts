@@ -3,7 +3,7 @@ import { extractRouteParams, setAssetsRoutes, patternToRegex } from "./helpers"
 import { createServer, IncomingMessage, ServerResponse } from "http"
 import { Request } from './request'
 import { Response } from "./response"
-import { ROUTES as _ROUTES } from "./routes"
+import { ROUTES as _ROUTES } from "./app/routes"
 import { HttpContext } from "./types"
 
 
@@ -21,7 +21,6 @@ function getEndpoint(method: string | undefined, request: Request) {
         const match = path.match(regex)
 
         if (key.startsWith(method) && match) {
-            console.log("hi")
             request._setParams(extractRouteParams(match, pattern))
             return `${method}:${pattern}`
         }

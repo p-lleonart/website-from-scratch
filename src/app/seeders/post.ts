@@ -1,5 +1,5 @@
 import { BaseSeeder } from "#database"
-import { Post } from "#root/models/post"
+import { Post } from "#app/models/post"
 
 
 export class PostSeeder extends BaseSeeder {

@@ -9,7 +9,7 @@ Go in `src/modules/auth`.
 
 Now edit the migrations and models in `migrations` if you need (default user model contains a name, email, id and a password, the default auth token model contains a userId, a token, an expiration date and an id).
 
-Now you can register these migrations in `/src/migrations/index.ts` (cf. Database module).
+Now you can register these migrations in `/src/app/migrations/index.ts` (cf. Database module).
 
 Then run the migrations: `pnpm run migrate add_auth_token=up add_users=up`.
 

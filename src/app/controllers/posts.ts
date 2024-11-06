@@ -1,4 +1,4 @@
-import { Post } from "#root/models/post"
+import { Post } from "#app/models/post"
 import { ModelObject } from "#database/types"
 import { render } from "#template-parser"
 import { HttpContext } from "#root/types"

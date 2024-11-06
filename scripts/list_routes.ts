@@ -1,4 +1,4 @@
-import { ROUTES } from "../src/routes"
+import { ROUTES } from "#app/routes"
 
 
 let routesToDisplay: { [key: string]: { [key: string]: string } } = {}

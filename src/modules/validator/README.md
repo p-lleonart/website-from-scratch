@@ -102,11 +102,11 @@ the `schema.parse()` return would be
 
 ## Validators directory
 
-You can set your schemas in files contained into `src/validators`.
+You can set your schemas in files contained into `src/app/validators`.
 
 ### Create custom rules
 
-If you want to create a custom rule, you can create a file named `rules.ts` into `src/validators` (nota: the file name and path are required to be taken into account).
+If you want to create a custom rule, you can create a file named `rules.ts` into `src/app/validators` (nota: the file name and path are required to be taken into account).
 
 Then, begin to implement your rules!
 
