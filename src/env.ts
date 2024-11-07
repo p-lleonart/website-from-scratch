@@ -24,4 +24,8 @@ if (!conf.parsed["CSRF_TOKEN_EXPIRES"]) {
     conf.parsed["CSRF_TOKEN_EXPIRES"] = "300000"
 }
 
+if (!conf.parsed["NODE_ENV"]) {
+    conf.parsed["NODE_ENV"] = "dev"
+}
+
 export const env = conf.parsed

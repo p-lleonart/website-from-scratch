@@ -1,5 +1,5 @@
-import { ErrorsController } from "./errors"
 import { extractRouteParams, setAssetsRoutes, patternToRegex } from "./helpers"
+import { ErrorsController } from "./helpers/errors-controller"
 import { createServer, IncomingMessage, ServerResponse } from "http"
 import { Request } from './request'
 import { Response } from "./response"

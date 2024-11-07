@@ -10,48 +10,23 @@
         "build:types": "tsc -d --declarationDir dist/types --declarationMap --emitDeclarationOnly",
         "migrate": "pnpm build --cmd=src/app/migrations/index.ts && node dist/main.js",
         "run:seeders": "pnpm build --cmd=src/app/seeders/index.ts && node dist/main.js",
-        "list:routes": "pnpm build --cmd=scripts/list_routes.ts && node dist/main.js"
+        "list:routes": "pnpm build --cmd=scripts/list_routes.ts && node dist/main.js",
+        "gen:secret-key": "node scripts/gen_secret_key.cjs"
     },
     "imports": {
-        "#root/*": [
-            "./src/*.js"
-        ],
-        "#app/*": [
-            "./src/app/*.js"
-        ],
-        "#helpers": [
-            "./src/helpers/index.js"
-        ],
-        "#auth": [
-            "./src/modules/auth/index.js"
-        ],
-        "#auth/*": [
-            "./src/modules/auth/*.js"
-        ],
-        "#csrf-shield": [
-            "./src/modules/csrf-shield/index.js"
-        ],
-        "#csrf-shield/*": [
-            "./src/modules/csrf-shield/*.js"
-        ],
-        "#database": [
-            "./src/modules/database/index.js"
-        ],
-        "#database/*": [
-            "./src/modules/database/*.js"
-        ],
-        "#template-parser": [
-            "./src/modules/template-parser/index.js"
-        ],
-        "#template-parser/*": [
-            "./src/modules/template-parser/*.js"
-        ],
-        "#validator": [
-            "./src/modules/validator/index.js"
-        ],
-        "#validator/*": [
-            "./src/modules/validator/*.js"
-        ]
+        "#root/*": "./src/*.js",
+        "#app/*": "./src/app/*.js",
+        "#helpers": "./src/helpers/index.js",
+        "#auth": "./src/modules/auth/index.js",
+        "#auth/*": "./src/modules/auth/*.js",
+        "#csrf-shield": "./src/modules/csrf-shield/index.js",
+        "#csrf-shield/*": "./src/modules/csrf-shield/*.js",
+        "#database": "./src/modules/database/index.js",
+        "#database/*": "./src/modules/database/*.js",
+        "#template-parser": "./src/modules/template-parser/index.js",
+        "#template-parser/*": "./src/modules/template-parser/*.js",
+        "#validator": "./src/modules/validator/index.js",
+        "#validator/*": "./src/modules/validator/*.js"
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.2",
