@@ -1,9 +1,10 @@
+import { BaseController } from "#lib/ioc"
 import { render } from "#template-parser"
 import { HttpContext } from "#root/types"
 
 
-export class ContactController {
-    static async view({ response }: HttpContext) {
+export class ContactController extends BaseController {
+    public async view({ response }: HttpContext) {
         return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/contact.html", {
@@ -15,7 +16,7 @@ export class ContactController {
         })
     }
 
-    static async store({ request, response }: HttpContext) {
+    public async store({ request, response }: HttpContext) {
         const message = request.body
         
         console.info(`message received (from ${message.name}): ${message.content}`)

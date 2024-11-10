@@ -1,11 +1,12 @@
 import { Post } from "#app/models/post"
 import { ModelObject } from "#database/types"
 import { render } from "#template-parser"
+import { BaseController } from "#lib/ioc"
 import { HttpContext } from "#root/types"
 
 
-export class PostController {
-    static async getAll({ response }: HttpContext) {
+export class PostController extends BaseController {
+    public async getAll({ response }: HttpContext) {
         const posts = await Post.findAll() as Post[]
         const postsSerialized: ModelObject[] = await new Promise((resolve, reject) => {
             let serialized: ModelObject[] = []
@@ -31,7 +32,7 @@ export class PostController {
         })
     }
 
-    static async get({ request, response }: HttpContext) {
+    public async get({ request, response }: HttpContext) {
         const postId = request.query.get('id')
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
@@ -48,14 +49,14 @@ export class PostController {
         })
     }
 
-    static async create({ response }: HttpContext) {
+    public async create({ response }: HttpContext) {
         return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/post-create.html", {})
         })
     }
 
-    static async store({ request, response }: HttpContext) {
+    public async store({ request, response }: HttpContext) {
         const body = request.body
         const postData = { id: `${Date.now()}`, title: body.title, content: body.content }
 
@@ -68,7 +69,7 @@ export class PostController {
         })
     }
 
-    static async editView({ request, response }: HttpContext) {
+    public async editView({ request, response }: HttpContext) {
         const postId = request.query.get('id')
 
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
@@ -87,7 +88,7 @@ export class PostController {
         })
     }
     
-    static async edit({ request, response }: HttpContext) {
+    public async edit({ request, response }: HttpContext) {
         const postId = request.query.get('id')
         const body = request.body
 
@@ -104,7 +105,7 @@ export class PostController {
         })
     }
 
-    static async delete({ request, response }: HttpContext) {
+    public async delete({ request, response }: HttpContext) {
         const postId = request.query.get('id')
         if (!postId) return response.setErrorResponse({statusCode: 400, statusMessage: "URL param 'id' is missing."})
 

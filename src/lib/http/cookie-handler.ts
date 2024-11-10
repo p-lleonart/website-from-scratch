@@ -1,7 +1,7 @@
 import { Response } from "./response"
-import { parseCookieData } from "./helpers"
+import { parseCookieData } from "#helpers"
 import { Request } from "./request"
-import { Cookie } from "./types"
+import { Cookie } from "#root/types"
 
 
 export class CookieHandler {

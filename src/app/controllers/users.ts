@@ -3,42 +3,43 @@ import { CsrfValidationMiddleware } from "#csrf-shield"
 import { render } from "#template-parser"
 import { Schema } from "#validator"
 import type { LoginPayload, SignupPayload } from "./types"
+import { BaseController } from "#lib/ioc"
 import type { HttpContext, Route } from "#root/types"
 
 export const AUTH_ROUTES: {[key: string]: Route} = {
     "GET:/users/login": {
-        callback: async (httpContext: HttpContext) => UserController.login(httpContext)
+        controller: ["UserController", "login"]
     },
     "POST:/users/login": {
-        callback: async (httpContext: HttpContext) => UserController.processLogin(httpContext)
+        controller: ["UserController", "processLogin"]
     },
     "GET:/users/signup": {
-        callback: async (httpContext: HttpContext) => UserController.signup(httpContext)
+        controller: ["UserController", "signup"]
     },
     "POST:/users/signup": {
-        callback: async (httpContext: HttpContext) => UserController.processSignup(httpContext),
+        controller: ["UserController", "processSignup"],
         middlewares: [new CsrfValidationMiddleware()]
     },
     "POST:/users/logout": {
-        callback: async (httpContext: HttpContext) => UserController.processLogout(httpContext),
+        controller: ["UserController", "processLogout"],
         middlewares: [new AuthMiddleware()]
     },
     "GET:/users/dashboard": {
-        callback: async (httpContext: HttpContext) => UserController.dashboard(httpContext),
+        controller: ["UserController", "dashboard"],
         middlewares: [new AuthMiddleware()],
         description: "This is the dashboard that permits to the user to access to their data. It requires a login to access to it."
     }
 }
 
-export class UserController {
-    public static async login({ response }: HttpContext) {
+export class UserController extends BaseController {
+    public async login({ response }: HttpContext) {
         return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/users/login.html")
         })
     }
 
-    public static async processLogin({ request, response }: HttpContext) {
+    public async processLogin({ request, response }: HttpContext) {
         const schema = await Schema.create({
             email: {
                 "email": []
@@ -86,7 +87,7 @@ export class UserController {
         })
     }
 
-    public static async signup({ response }: HttpContext) {
+    public async signup({ response }: HttpContext) {
         const csrfToken = await response.generateCsrfToken()
 
         return response.setResponse({
@@ -97,7 +98,7 @@ export class UserController {
         })
     }
 
-    public static async processSignup({ request, response }: HttpContext) {
+    public async processSignup({ request, response }: HttpContext) {
         const schema = await Schema.create({
             name: {
                 "optional": ["John Doe"]  // you can set a default value
@@ -142,13 +143,13 @@ export class UserController {
         return response.redirect("/users/dashboard")
     }
 
-    public static async processLogout({ request, response }: HttpContext) {
+    public async processLogout({ request, response }: HttpContext) {
         const user = await User.getCurrentUser(request) as User
         response = await User.logout({ request, response }, user!)  // user exists in all cases thanks to the middleware
         return response.redirect("/users/login")
     }
 
-    public static async dashboard({ request, response }: HttpContext) {
+    public async dashboard({ request, response }: HttpContext) {
         const user = await User.getCurrentUser(request) as User
 
         console.log("user name :", user.name)

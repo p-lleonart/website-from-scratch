@@ -26,7 +26,7 @@ Register the `CsrfValidationMiddleware` on your post endpoint:
 
 In your controller:
 ```ts
-    public static async create({ response }: HttpContext) {
+    public async create({ response }: HttpContext) {
         const csrfToken = await response.generateCsrfToken()
 
         return response.setResponse({
@@ -37,7 +37,7 @@ In your controller:
         })
     }
 
-    public static async processCreate({ request, response }: HttpContext) {
+    public async processCreate({ request, response }: HttpContext) {
         // ...
     }
 ```

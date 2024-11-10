@@ -1,6 +1,6 @@
 import { type Context, render } from "#template-parser"
 import { existsSync } from "node:fs"
-import type { ResponseContext, Headers } from "./types"
+import type { ResponseContext, Headers } from "#root/types"
 
 
 export class Response {

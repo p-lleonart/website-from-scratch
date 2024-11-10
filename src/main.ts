@@ -1,12 +1,21 @@
 import { extractRouteParams, setAssetsRoutes, patternToRegex } from "./helpers"
 import { ErrorsController } from "./helpers/errors-controller"
 import { createServer, IncomingMessage, ServerResponse } from "http"
-import { Request } from './request'
-import { Response } from "./response"
+import { BaseController, setupContainer } from "#lib/ioc"
+import { Request, Response } from '#lib/http'
 import { ROUTES as _ROUTES } from "./app/routes"
 import { HttpContext } from "./types"
 import { MiddlewareError } from "./middleware"
 
+
+async function runController(
+    httpContext: HttpContext,
+    controllers: { [key: string]: BaseController },
+    controller: [string, string],
+    args?: any
+) {
+    return await (controllers[controller[0]] as any)[controller[1]](httpContext, args)
+}
 
 function getEndpoint(method: string | undefined, request: Request) {
     const url = request.url(true) as URL
@@ -48,6 +57,10 @@ Object.keys(ROUTES).forEach(key => {
     }
 })
 
+/** load controllers */
+const controllers = await setupContainer()
+controllers["ErrorsController"] = new ErrorsController()
+
 createServer(async (req: IncomingMessage, res: ServerResponse) => {
     let httpContext: HttpContext = {
         req,
@@ -78,13 +91,22 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
             httpContext.response._changeContext("route")
 
             if (httpContext.response.shouldRunRouteCallback()) {
-                httpContext.response = await route.callback(httpContext)
+                if (route.controller) {
+                    httpContext.response = await runController(httpContext, controllers, route.controller)
+                } else {
+                    httpContext.response = await route.callback(httpContext)
+                }
             }
         } else {
-            httpContext.response = await ErrorsController.notFound(httpContext)
+            httpContext.response = await runController(httpContext, controllers, ["ErrorsController", "notFound"])
         }
     } catch (e: any) {
-        httpContext.response = await ErrorsController.serverError(httpContext, { name: e.name, message: e.message, stack: e.stack })
+        httpContext.response = await runController(
+            httpContext,
+            controllers,
+            ["ErrorsController", "serverError"],
+            { name: e.name, message: e.message, stack: e.stack }
+        )
     }
     
     console.log(`[${endpoint}] ${httpContext.response.statusCode}`)

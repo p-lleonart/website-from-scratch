@@ -74,8 +74,8 @@ Nota: you cannot have two params between two `/`. E.g: this `/post/:slug-:id` wo
 You can create controllers to split the code in many files.
 
 ```ts
-export class CoreController {
-    static async home({ response }: HttpContext) {
+export class CoreController extends BaseController {
+    async home({ response }: HttpContext) {
         return response.setResponse({
             contentType: "text/html",
             body: await readFile("./src/templates/index.html", "utf8")
@@ -88,7 +88,7 @@ And then your route is like this:
 
 ```ts
 "GET:/": {
-    callback: async (httpContext: HttpContext) => CoreController(httpContext),
+    controller: ["CoreController", "home"],
     middlewares: [ new MyMiddleware() ],
     description: 'This is the homepage',
 },
@@ -135,8 +135,8 @@ You can create a file at `src/app/middlewares` and type this code in the the fil
 
 for example:
 ```ts
-import { Middleware } from "@/middleware"
-import { HttpContext } from "@/types"
+import { Middleware } from "#root/middleware"
+import { HttpContext } from "#root/types"
 
 
 export class MyMiddleware extends Middleware {
@@ -200,3 +200,104 @@ The ``MiddlewareError`` will be catched and it will return the response specifie
 - responseMsg: the body of the error response
 - message: the error description
 - contentType: default = "text/html"
+
+## Dependency injection
+
+If you want to use Dependency injection for your services, you can by defining your services in `src/app/services`:
+
+```ts
+import { Injectable } from "#lib/ioc"
+
+@Injectable()
+export class MyService extends BaseService {
+    getData() {
+        return { data: "my data" }
+    }
+}
+```
+
+The ``Injectable`` decorator permits to define a class that could be injected.
+
+Then in your controller:
+
+```ts
+import { Inject } from "#lib/ioc"
+
+export class TestDIController extends BaseController {
+    constructor(@Inject(MyService) protected myService: MyService) {
+        super()
+    }
+
+    myView({ response }: HttpContext) {
+        return response.setResponse({
+            body: JSON.stringify(this.myService.getData()),
+            contentType: "application/json"
+        })
+    }
+}
+```
+
+The ``Inject`` decorator defines a dependency of the class.
+
+You can register the views like all controllers.
+
+Nota: you can inject services into services:
+
+```ts
+@Injectable()
+export class SecondService extends BaseService {
+    getData() {
+        return "hello, world"
+    }
+}
+
+@Injectable()
+export class FirstService extends BaseService {
+    constructor(@Inject(SecondService) protected secondService: SecondService) {
+        super()
+    }
+
+    getData() {
+        return { data: this.secondService.getData() }
+    }
+}
+```
+
+And then in the controller:
+
+```ts
+export class TestDIController extends BaseController {
+    constructor(@Inject(FirstService) protected firstService: FirstService) {
+        super()
+    }
+
+    myView({ response }: HttpContext) {
+        return response.setResponse({
+            body: JSON.stringify(this.firstService.getData()),
+            contentType: "application/json"
+        })
+    }
+}
+```
+
+Nota: you can inject as many services as you want.
+
+```ts
+export class TestDIController extends BaseController {
+    constructor(
+        @Inject(FirstService) protected firstService: FirstService,
+        @Inject(SecondService) protected secondService: SecondService,
+    ) {
+        super()
+    }
+
+    myView({ response }: HttpContext) {
+        console.log(this.secondService.getData())
+
+        return response.setResponse({
+            body: JSON.stringify(this.firstService.getData()),
+            contentType: "application/json"
+        })
+    }
+}
+```

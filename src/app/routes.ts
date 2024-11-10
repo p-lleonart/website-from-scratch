@@ -1,6 +1,3 @@
-import { CoreController } from "./controllers/core"
-import { ContactController } from "./controllers/contact"
-import { PostController } from "./controllers/posts"
 import { AUTH_ROUTES } from "./controllers/users"
 import { readFile } from "fs/promises"
 import { TestMiddleware, Test2Middleware, Test3Middleware, Test4Middleware } from "./middlewares/test"
@@ -16,42 +13,25 @@ export const ROUTES: {[key: string]: Route} = {
             })
         }
     },
-    "GET:/about": {
-        callback: async (httpContext: HttpContext) => CoreController.about(httpContext)
-    },
-    "GET:/contact": {
-        callback: async (httpContext: HttpContext) => ContactController.view(httpContext)
-    },
-    "POST:/contact": {
-        callback: async (httpContext: HttpContext) => ContactController.store(httpContext)
-    },
+    "GET:/about": { controller: ["CoreController", "about"] },
+    "GET:/contact": { controller: ["ContactController", "view"] },
+    "POST:/contact": { controller: ["ContactController", "store"] },
 
-    "GET:/posts": {
-        callback: async (httpContext: HttpContext) => PostController.getAll(httpContext)
-    },
-    // formatted routes aren't implemented yet, for now on, we'll use searchParams
+    "GET:/posts": { controller: ["PostController", "getAll"] },
+    // using searchParams
     "GET:/posts/view": {
-        callback: async (httpContext: HttpContext) => PostController.get(httpContext),
+        controller: ["PostController", "get"],
         middlewares: [
             new TestMiddleware(),
             new Test2Middleware()
         ]
     },
-    "GET:/posts/create": {
-        callback: async (httpContext: HttpContext) => PostController.create(httpContext)
-    },
-    "POST:/posts/create": {
-        callback: async (httpContext: HttpContext) => PostController.store(httpContext)
-    },
-    "GET:/posts/edit": {
-        callback: async (httpContext: HttpContext) => PostController.editView(httpContext)
-    },
-    "POST:/posts/edit": {
-        callback: async (httpContext: HttpContext) => PostController.edit(httpContext)
-    },
-    "POST:/posts/delete": {
-        callback: async (httpContext: HttpContext) => PostController.delete(httpContext)
-    },
+    "GET:/posts/create": { controller: ["PostController", "create"] },
+    "POST:/posts/create": { controller: ["PostController", "store"] },
+    "GET:/posts/edit": { controller: ["PostController", "editView"] },
+    "POST:/posts/edit": { controller: ["PostController", "edit"] },
+    "POST:/posts/delete": { controller: ["PostController", "delete"] },
+
     "GET:/dashboard": {
         callback: async ({ response }: HttpContext) => {
             return response.setResponse({
@@ -105,4 +85,8 @@ export const ROUTES: {[key: string]: Route} = {
             })
         }
     },
+
+    // TEST FOR DI
+    "GET:/testdi": { controller: ["TestDIController", "myView"] },
+    "GET:/testdi2": { controller: ["TestDI2Controller", "myView"] },
 }

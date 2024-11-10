@@ -9,7 +9,7 @@ The syntax is pretty similar to Svelte one's.
 In `./src/app/controllers/template-demo.ts`:
 ```ts
 export class TemplateDemoController {
-    static async view({ request, response}: HttpContext): Promise<Response> {
+    public async view({ request, response}: HttpContext): Promise<Response> {
         const messagesSent = 3
         return response.setResponse({
             contentType: "text/html",
@@ -18,7 +18,7 @@ export class TemplateDemoController {
                 text: "hello, world!",
                 messagesSent: messagesSent,
                 msgs: ["hi", "hi1", "hi2"],
-                isSentALotOfMsg: messagesSent > 3  // Nota: conditions aren't supported inside of the template, so put the condition into a variable and do a condition as '{{if condition}} ...'
+                isSentALotOfMsg: messagesSent > 3  // Nota: conditions aren't supported inside of the template, so put the condition into a variable and do a condition as '{{#if condition}} ...'
             })
         })
     }

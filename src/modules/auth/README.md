@@ -113,7 +113,7 @@ You can register a middleware on a route directly:
 export const ROUTES: {[key: string]: Route} = {
     // ...
     "GET:/users/dashboard": {
-        callback: async (httpContext: HttpContext) => UserController.dashboard(httpContext),
+        controller: ["UserController", "dashboard"],
         middlewares: [
             new AuthMiddleware()
         ]
@@ -130,7 +130,7 @@ Note: the middleware will be processed in the same order as they were set:
 export const ROUTES: {[key: string]: Route} = {
     // ...
     "GET:/users/dashboard": {
-            callback: async (httpContext: HttpContext) => UserController.dashboard(httpContext),
+        controller: ["UserController", "dashboard"],
             middlewares: [
                 new AuthMiddleware(),
                 new SomeMiddleware(),

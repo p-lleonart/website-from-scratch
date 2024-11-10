@@ -1,10 +1,10 @@
 import AddCsrfTokenMigration from "./migrations/add_csrf_tokens"
 import CsrfToken from "./models/csrf-token"
 import CsrfValidationMiddleware from "./middlewares/csrf-validation"
-import { Response } from "#root/response"
+import { Response } from "#lib/http"
 
 
-declare module "#root/response" {
+declare module "#lib/http" {
     interface Response {
         generateCsrfToken(): Promise<CsrfToken>
     }

@@ -1,10 +1,11 @@
 import { existsSync } from "node:fs"
 import { readFile } from "node:fs/promises"
-import { HttpContext } from "#root/types"
+import BaseController from "#root/lib/ioc/base-controller"
 import { env } from "#root/env"
+import { HttpContext } from "#root/types"
 
 
-export class ErrorsController {
+export class ErrorsController extends BaseController {
     /**
      * It permits to the server to see if the user customized the template for a specific HTTP error.
      * 
@@ -29,7 +30,7 @@ export class ErrorsController {
         return customTemplate ? customTemplate : defaultTemplate
     }
 
-    static async notFound({ response }: HttpContext) {
+    public async notFound({ response }: HttpContext) {
         return response.setResponse({
             body: await ErrorsController.getTemplateProcess(404, "<h3>404: Not Found</h3>"),
             contentType: "text/html",
@@ -37,7 +38,7 @@ export class ErrorsController {
         })
     }
     
-    static async serverError({ response }: HttpContext, options: { name: string, message: string, stack: string }) {
+    public async serverError({ response }: HttpContext, options: { name: string, message: string, stack: string }) {
         const template = env.NODE_ENV === "dev" || env.NODE_ENV === "test"
             ? `<h3>500: Internal server error</h3><pre>name: ${options.name}<br>msg: ${options.message}<br>stack: ${options.stack}</pre>`
             : "<h3>500: Internal server error</h3>"

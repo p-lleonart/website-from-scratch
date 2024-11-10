@@ -1,7 +1,6 @@
 import { IncomingMessage } from "http"
 import { Middleware } from "./middleware"
-import { Request } from "./request"
-import { Response } from "./response"
+import { Request, Response } from "#lib/http"
 
 export type Cookie = {
     name: string
@@ -28,14 +27,21 @@ export type HttpContext = {
 
 export type ResponseContext = 'middleware' | 'route'
 
-export type Route = {
-    callback: (httpContext: HttpContext) => Promise<Response>
+type RouteOptional = {
     description?: string
     middlewares?: Middleware[]
 
     /** this will be set by the server at launch */
     _regex?: RegExp
 }
+
+/**
+ * You can set a callback or put a tuple ["YourController", "yourMethod"]
+ */
+export type Route = 
+    | { callback: (httpContext: HttpContext) => Promise<Response>; controller?: never } & RouteOptional
+    | { callback?: never; controller: [string, string] } & RouteOptional
+
 
 export type RouteParams = {
     [key: string]: string
