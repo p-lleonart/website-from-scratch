@@ -1,4 +1,4 @@
-import { extractRouteParams, setAssetsRoutes, patternToRegex } from "./helpers"
+import { extractRouteParams, setAssetsRoutes, patternToRegex, setSessionIdCookie } from "./helpers"
 import { ErrorsController } from "./helpers/errors-controller"
 import { createServer, IncomingMessage, ServerResponse } from "http"
 import { BaseController, setupContainer } from "#lib/ioc"
@@ -70,6 +70,11 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
 
     /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
     const endpoint = getEndpoint(req.method, httpContext.request)
+
+    const sessionId = httpContext.request.cookieHandler.getCookie("session_id")
+    if (!sessionId) {
+        httpContext.response = setSessionIdCookie(httpContext)
+    }
 
     try {
         if(ROUTES[endpoint] !== undefined) {

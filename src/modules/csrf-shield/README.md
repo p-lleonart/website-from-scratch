@@ -2,15 +2,6 @@
 
 This module provides a CSRF protection system to secure your forms.
 
-## Models & migrations
-Go in `src/modules/csrf-shield`.
-
-Now edit the migrations and models in `migrations` if you need.
-
-Now you can register these migrations in `/src/app/migrations/index.ts` (cf. Database module).
-
-Then run the migrations: `pnpm run migrate add_csrf_token=up`.
-
 ## Protect an endpoint
 
 First, you need to create the routes (for this example, we'll create a create post endpoint).
@@ -20,19 +11,20 @@ You need a GET endpoint (`PostController.create()`) to display the form and a PO
 Register the `CsrfValidationMiddleware` on your post endpoint:
 ```ts
     //...
-    middlewares: [new CsrfValidationMiddleware()]
+    middlewares: [new CsrfMiddleware()]
     //...
 ```
 
 In your controller:
 ```ts
-    public async create({ response }: HttpContext) {
-        const csrfToken = await response.generateCsrfToken()
+    public async create({ request, response }: HttpContext) {
+        const csrfToken = response.generateCsrfToken(request)
+        response = response.setCsrfCookie({ request, response }, csrfToken)
 
         return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/path/to/template.html", {
-                csrfInput: csrfToken.formatInput()
+                csrfInput: response.csrfHTMLInput(csrfToken)
             })
         })
     }
@@ -59,6 +51,6 @@ What's happening in this example?
 
 First, the user will load the form, and the server will add a little hidden input contening the token in the form.
 
-When the user submits the form, the `CsrfValidationMiddleware` gets the token and verifies it. If the token isn't defined or the token is invalid (doesn't matches with the request id csrf token or it is expired), a 403 page expired exception is raised.
+When the user submits the form, the `CsrfMiddleware` gets the token and verifies it. If the token isn't defined or the token is invalid (doesn't matches with the request id csrf token or it is expired), a 403 page expired exception is raised.
 
 If the token is valid, the process continues.

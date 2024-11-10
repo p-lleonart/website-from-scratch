@@ -1,5 +1,5 @@
 import { AuthMiddleware, User } from "#auth"
-import { CsrfValidationMiddleware } from "#csrf-shield"
+import { CsrfMiddleware } from "#csrf-shield"
 import { render } from "#template-parser"
 import { Schema } from "#validator"
 import type { LoginPayload, SignupPayload } from "./types"
@@ -18,7 +18,7 @@ export const AUTH_ROUTES: {[key: string]: Route} = {
     },
     "POST:/users/signup": {
         controller: ["UserController", "processSignup"],
-        middlewares: [new CsrfValidationMiddleware()]
+        middlewares: [new CsrfMiddleware()]
     },
     "POST:/users/logout": {
         controller: ["UserController", "processLogout"],
@@ -87,13 +87,14 @@ export class UserController extends BaseController {
         })
     }
 
-    public async signup({ response }: HttpContext) {
-        const csrfToken = await response.generateCsrfToken()
+    public async signup({ request, response }: HttpContext) {
+        const csrfToken = response.generateCsrfToken(request)
+        response = response.setCsrfCookie({ request, response }, csrfToken)
 
         return response.setResponse({
             contentType: "text/html",
             body: render("./src/templates/users/signup.html", {
-                csrfInput: csrfToken.formatInput()
+                csrfInput: response.csrfHTMLInput(csrfToken)
             })
         })
     }

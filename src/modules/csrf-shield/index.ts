@@ -1,25 +1,33 @@
-import AddCsrfTokenMigration from "./migrations/add_csrf_tokens"
-import CsrfToken from "./models/csrf-token"
-import CsrfValidationMiddleware from "./middlewares/csrf-validation"
-import { Response } from "#lib/http"
+import { generateToken, setCsrfCookie } from "./helpers"
+import { Request, Response } from "#lib/http"
+import { CsrfMiddleware } from "./middleware"
+import { env } from "#root/env"
+import { HttpContext } from "#root/types"
 
 
 declare module "#lib/http" {
     interface Response {
-        generateCsrfToken(): Promise<CsrfToken>
+        generateCsrfToken: (request: Request) => string
+        setCsrfCookie: (HttpContext: HttpContext, token: string) => Response
+        csrfHTMLInput: (token: string) => string
     }
 }
 
-Response.prototype.generateCsrfToken = async function () {
-    const csrfToken = await CsrfToken.create() as CsrfToken
+Response.prototype.generateCsrfToken = function (request: Request) {
+    const session_id = request.cookieHandler.getCookie(env.SESSION_ID_COOKIE_NAME)
+    return generateToken(session_id)
+}
 
-    this.setHeader("X-request-id", csrfToken.id.toString())
+Response.prototype.setCsrfCookie = function (httpContext: HttpContext, token: string) {
+    return setCsrfCookie(httpContext, token)
+}
 
-    return csrfToken
+Response.prototype.csrfHTMLInput = function (token: string) {
+    return `<input name="${env.CSRF_TOKEN_BODY_FIELD_NAME}" type="hidden" value="${token}" />`
 }
 
 export {
-    AddCsrfTokenMigration,
-    CsrfToken,
-    CsrfValidationMiddleware
+    CsrfMiddleware,
+    generateToken,
+    setCsrfCookie,
 }
