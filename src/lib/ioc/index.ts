@@ -3,7 +3,7 @@ import BaseService from "./base-service"
 import { Container } from "./container"
 import { Inject, Injectable } from "./decorators"
 import { setupContainer } from "./setup"
-import type { Constructor } from "./types"
+import type { Constructor, Controllers } from "./types"
 
 
 export {
@@ -14,4 +14,5 @@ export {
     Injectable,
     setupContainer,
     Constructor,
+    Controllers,
 }

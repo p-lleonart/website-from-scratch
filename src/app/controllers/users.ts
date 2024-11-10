@@ -4,9 +4,9 @@ import { render } from "#template-parser"
 import { Schema } from "#validator"
 import type { LoginPayload, SignupPayload } from "./types"
 import { BaseController } from "#lib/ioc"
-import type { HttpContext, Route } from "#root/types"
+import type { HttpContext, Routes } from "#root/types"
 
-export const AUTH_ROUTES: {[key: string]: Route} = {
+export const AUTH_ROUTES: Routes = {
     "GET:/users/login": {
         controller: ["UserController", "login"]
     },

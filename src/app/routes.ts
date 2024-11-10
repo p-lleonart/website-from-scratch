@@ -1,10 +1,10 @@
 import { AUTH_ROUTES } from "./controllers/users"
 import { readFile } from "fs/promises"
 import { TestMiddleware, Test2Middleware, Test3Middleware, Test4Middleware } from "./middlewares/test"
-import { HttpContext, Route } from "#root/types"
+import { HttpContext, Routes } from "#root/types"
 
 
-export const ROUTES: {[key: string]: Route} = {
+export const ROUTES: Routes = {
     "GET:/": {
         callback: async ({ response }: HttpContext) => {
             return response.setResponse({

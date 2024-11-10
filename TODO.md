@@ -6,4 +6,3 @@ Features:
 - better error handling
 - new features: files, sessions, i18n, cache,...
 - postgresql
-- let main lighter

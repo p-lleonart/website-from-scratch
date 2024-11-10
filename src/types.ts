@@ -42,6 +42,7 @@ export type Route =
     | { callback: (httpContext: HttpContext) => Promise<Response>; controller?: never } & RouteOptional
     | { callback?: never; controller: [string, string] } & RouteOptional
 
+export type Routes = { [key: string]: Route }
 
 export type RouteParams = {
     [key: string]: string
