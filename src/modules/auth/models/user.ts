@@ -1,23 +1,18 @@
+import { CONFIG } from "#app/config"
 import { AuthToken } from "./auth_token"
 import { compareSync, genSaltSync, hashSync } from "bcrypt"
 import { BaseModel, DBHandler, Table } from "#database"
-import { env } from "#root/env"
 import { randomId } from "#helpers"
 import { AddUserMigration } from "#auth/migrations/add_users"
-import { Request } from "#root/request"
-import { Response } from "#root/response"
+import { Request, Response } from "#lib/http"
 import { HttpContext } from "#root/types"
 
 
-const AUTH_TOKEN_COOKIE_EXPIRES = parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)
+const AUTH_TOKEN_COOKIE_NAME = CONFIG.modules.auth.TOKEN_COOKIE_NAME
+const AUTH_TOKEN_COOKIE_EXPIRES = CONFIG.modules.auth.TOKEN_COOKIE_EXPIRES
+const saltRounds = CONFIG.modules.auth.SALT_ROUNDS
 
-const AUTH_TOKEN_COOKIE_NAME = env.AUTH_TOKEN_COOKIE_NAME
-    ? env.AUTH_TOKEN_COOKIE_NAME
-    : "auth_token"
-
-const dbHandler = new DBHandler(env.DATABASE_NAME ? env.DATABASE_NAME : "database.sqlite")
-
-const saltRounds = env.SALT_ROUNDS ? parseInt(env.SALT_ROUNDS) : 10
+const dbHandler = new DBHandler(CONFIG.modules.database.NAME)
 
 export class User extends BaseModel {
     public static table: Table = (new AddUserMigration(dbHandler)).getTable()

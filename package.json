@@ -26,6 +26,8 @@
         "#csrf-shield/*": "./src/modules/csrf-shield/*.js",
         "#database": "./src/modules/database/index.js",
         "#database/*": "./src/modules/database/*.js",
+        "#sessions": "./src/modules/sessions/index.js",
+        "#sessions/*": "./src/modules/sessions/*.js",
         "#template-parser": "./src/modules/template-parser/index.js",
         "#template-parser/*": "./src/modules/template-parser/*.js",
         "#validator": "./src/modules/validator/index.js",

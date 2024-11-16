@@ -23,6 +23,12 @@ import type {
     AlterTable,
     Serialize
 } from "./types"
+import { ModuleConfig } from "#root/types"
+
+
+type DatabaseConfig = ModuleConfig & {
+    NAME: string
+} 
 
 export {
     AlterTable,
@@ -30,6 +36,7 @@ export {
     BaseModel,
     BaseSeeder,
     Column,
+    DatabaseConfig,
     DBHandler,
     DBHandlerInterface,
     escapeValue,

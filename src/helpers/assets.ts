@@ -1,6 +1,6 @@
 import { lstatSync, readdir } from "fs"
 import { readdir as readdirP, readFile } from "fs/promises"
-import { HttpContext, Route } from "../types"
+import { HttpContext, Routes } from "#root/types"
 
 
 /**
@@ -13,7 +13,7 @@ import { HttpContext, Route } from "../types"
  * @param routes
  * @returns {void}
  */
-export function setAssetsRoutes(routes: {[key: string]: Route}): Promise<{[key: string]: Route}> {
+export function setAssetsRoutes(routes: Routes): Promise<Routes> {
     return new Promise((resolve) => readdir("./src/public", async (err, files) => {
         if(err) throw err
 

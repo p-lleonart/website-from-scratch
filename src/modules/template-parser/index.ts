@@ -2,6 +2,7 @@ import { TemplateNotFound, VariableMissingInContext, WrongTypeVariable } from ".
 import { readFileSync } from "fs"
 import { parse } from "./handlers"
 import { type Context } from "./types"
+import { ModuleConfig } from "#root/types"
 
 
 function render(path: string, context?: Context) {
@@ -17,11 +18,14 @@ function render(path: string, context?: Context) {
     return parse(template, {})
 }
 
+type TemplateParserConfig = ModuleConfig & {}
+
 export {
     Context,
     render,
     parse,
     TemplateNotFound,
+    TemplateParserConfig,
     VariableMissingInContext,
     WrongTypeVariable
 }

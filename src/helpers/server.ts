@@ -1,4 +1,6 @@
+import { CONFIG } from "#app/config"
 import { ErrorsController } from "./errors-controller"
+import { instanciateGlobalMiddlewareList } from "./internals"
 import { Request, Response } from "#lib/http"
 import { type Controllers, setupContainer } from "#lib/ioc"
 import { MiddlewareError } from "#root/middleware"
@@ -70,11 +72,12 @@ export function setupRoutes(routes: Routes) {
             const pattern = '/' + key.split(":/")[1]
             route._regex = patternToRegex(pattern)
         }
-    
-        if (route.middlewares) {
-            for (let i = 1; i < route.middlewares.length; i++) {
-                route.middlewares[i - 1].setNext(route.middlewares[i])
-            }
+
+        route.middlewares = instanciateGlobalMiddlewareList(CONFIG.globalMiddlewares)
+            .concat(route.middlewares ?? [])
+
+        for (let i = 1; i < route.middlewares.length; i++) {
+            route.middlewares[i - 1].setNext(route.middlewares[i])
         }
     })
     return routes

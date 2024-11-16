@@ -1,6 +1,6 @@
 import { readdirSync } from 'fs'
 import { Container } from './container'
-import BaseController from '#root/lib/ioc/base-controller'
+import BaseController from './base-controller'
 
 
 function isSubclassOf(childConstructor: Function, parentConstructor: Function): boolean {

@@ -1,7 +1,7 @@
+import { CONFIG } from "#app/config"
 import { existsSync } from "node:fs"
 import { readFile } from "node:fs/promises"
-import BaseController from "#root/lib/ioc/base-controller"
-import { env } from "#root/env"
+import BaseController from "#lib/ioc/base-controller"
 import { HttpContext } from "#root/types"
 
 
@@ -39,7 +39,7 @@ export class ErrorsController extends BaseController {
     }
     
     public async serverError({ response }: HttpContext, options: { name: string, message: string, stack: string }) {
-        const template = env.NODE_ENV === "dev" || env.NODE_ENV === "test"
+        const template = CONFIG.NODE_ENV === "dev" || CONFIG.NODE_ENV === "test"
             ? `<h3>500: Internal server error</h3><pre>name: ${options.name}<br>msg: ${options.message}<br>stack: ${options.stack}</pre>`
             : "<h3>500: Internal server error</h3>"
 

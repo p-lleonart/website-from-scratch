@@ -2,6 +2,16 @@ import { IncomingMessage } from "http"
 import { Middleware } from "./middleware"
 import { Request, Response } from "#lib/http"
 
+
+export type ModuleConfig = { [key: string]: any | any[] }
+
+export type Config = {
+    NODE_ENV: 'dev' | 'test' | 'production'
+    globalMiddlewares: (typeof Middleware)[]
+    SECRET_KEY: string
+    modules: Record<string,ModuleConfig>
+}
+
 export type Cookie = {
     name: string
     value: string

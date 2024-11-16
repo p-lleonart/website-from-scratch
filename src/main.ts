@@ -1,4 +1,4 @@
-import { setAssetsRoutes, setSessionIdCookie } from "./helpers"
+import { setAssetsRoutes } from "./helpers"
 import { getEndpoint, runController, runMiddlewares, runView, setupControllers, setupRoutes } from "./helpers/server"
 import { createServer, IncomingMessage, ServerResponse } from "http"
 import { Request, Response } from '#lib/http'
@@ -25,11 +25,6 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
 
     /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
     const endpoint = getEndpoint(ROUTES, req.method, httpContext.request)
-
-    const sessionId = httpContext.request.cookieHandler.getCookie("session_id")
-    if (!sessionId) {
-        httpContext.response = setSessionIdCookie(httpContext)
-    }
 
     try {
         if(ROUTES[endpoint] !== undefined) {

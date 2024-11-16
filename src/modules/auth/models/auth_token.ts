@@ -1,17 +1,17 @@
+import { CONFIG } from "#app/config"
 import { BaseModel, DBHandler, Table } from "#database"
-import { env } from "#root/env"
 import { randomId } from "#helpers"
 import jwt from "jsonwebtoken"
 import { AddAuthTokenMigration } from "#auth/migrations/add_auth_tokens"
 import { User } from "./user"
 
 
-const AUTH_TOKEN_COOKIE_EXPIRES = parseInt(env.AUTH_TOKEN_COOKIE_EXPIRES, 10)
+const AUTH_TOKEN_COOKIE_EXPIRES = CONFIG.modules.auth.TOKEN_COOKIE_EXPIRES
 
-const dbHandler = new DBHandler(env.DATABASE_NAME ? env.DATABASE_NAME : "database.sqlite")
+const dbHandler = new DBHandler(CONFIG.modules.database.NAME)
 
 function generateAccessToken(id: string) {
-    return jwt.sign({ id: id }, env.SECRET_KEY!, { expiresIn: AUTH_TOKEN_COOKIE_EXPIRES })
+    return jwt.sign({ id: id }, CONFIG.SECRET_KEY, { expiresIn: AUTH_TOKEN_COOKIE_EXPIRES })
 }
 
 export class AuthToken extends BaseModel {
@@ -30,8 +30,8 @@ export class AuthToken extends BaseModel {
             throw Error("User doesn't exists")
         }
 
-        const pastToken = (await AuthToken.findBy('userId', options.userId))[0] as AuthToken
-        if (pastToken && pastToken.expires > 0) {
+        const pastTokens = (await AuthToken.findBy('userId', options.userId)) as AuthToken[]
+        for (const pastToken of pastTokens) {
             await pastToken.destroy()
         }
 
