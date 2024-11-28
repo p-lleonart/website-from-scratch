@@ -1,8 +1,8 @@
 import { CONFIG } from "#app/config"
-import { getSessionId } from "#sessions"
 import { generateToken } from "./helpers"
 import { Middleware } from "#root/middleware"
 import { HttpContext } from "#root/types"
+import { getSessionId } from "#sessions"
 
 
 export class CsrfMiddleware extends Middleware {

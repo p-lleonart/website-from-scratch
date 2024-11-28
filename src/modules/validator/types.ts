@@ -1,9 +1,7 @@
 
 export type Field = (string | number)[]
 
-export type Fields = {
-    [key: string]: {[key: string]: Field}
-}
+export type Fields = Record<string, Record<string, Field>>
 
 export type ParsingResult<T> = {
     success: boolean

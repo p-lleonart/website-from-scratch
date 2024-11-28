@@ -1,6 +1,10 @@
 # database
 
-This module permits you to interact with a SQLite database, to handle your migrations and your models.
+This module permits you to interact with a database, to handle your migrations and your models.
+
+For now on, only the SQLite database provider is implemented, but you can implement other providers on your own using the API (more info at the bottom of this file).
+
+It uses [Knex](https://knexjs.org/) under the hood, but maybe I'll create a homemade SQL query builder (one day).
 
 Please note that foreign keys aren't planned to be implemented. If you want to link two tables create a field in the first one that contains the second table primary key.
 
@@ -12,6 +16,8 @@ Note: you can install the SQLite Viewer VS code extension (from Florian Klampfer
 
 Create a migration and then run it (more infos at the next section). And run it.
 
+The default database provider is SQLite, but you can choose to use PostgreSQL provider if you want by updating the app's config (change the ``PROVIDER`` and ``CONFIG``).
+
 You can edit the name of the database file by setting a `DATABASE_NAME` in your `.env` file.
 
 ## Migrations
@@ -22,13 +28,13 @@ To use them, you'll need to create a directory (if not already created) `src/app
 
 <pre>index.ts</pre>
 ```ts
-import { BaseMigration, DBHandler } from "#database"
+import { BaseMigration } from "#database"
 
 import { AddPostMigration } from "./add_post"
 
-const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "database.sqlite")
+
 const migrations: any = {
-    'add_post': new AddPostMigration(dbHandler),
+    'add_post': new AddPostMigration(),
 }
 
 Object.keys(migrations).forEach(key => BaseMigration.runMigration(key, migrations[key]))
@@ -42,15 +48,13 @@ So, here's my migration:
 
 <pre>add-post.ts</pre>
 ```ts
-import { DBHandler, BaseMigration, Table } from "#database"
+import { BaseMigration, provider, Table } from "#database"
 
 export class AddPostMigration extends BaseMigration {
-    protected tableName = "posts"
-    protected table = new Table(this.dbHandler.getDbPath(), this.tableName, [
-    ])
-
-    constructor(dbHandler: DBHandler) {
-        super(dbHandler)
+    protected table = {
+        name: "posts",
+        columns: [
+        ]
     }
 
     public async up() {
@@ -70,35 +74,32 @@ To define tables, you have to put columns into your table. Watch out:
 // ...
 
 export class AddPostMigration extends BaseMigration {
-    protected tableName = "posts"
-    protected table = new Table(this.dbHandler.getDbPath(), this.tableName, [
+    protected table = {
+        name: "posts",
+        columns: [
+            {
+                name: 'id',
+                type: 'INTEGER',
+                isNotNull: true,
+                isPrimaryKey: true,
+                isUnique: true,
+                // isAutoincrement: true  // Nota: I won't use autoincrement to handle ids in this example
+            },
+            {
+                name: 'title',
+                type: 'TEXT',
+                isNotNull: true
+            },
+            {
+                name: 'content',
+                type: 'TEXT',
+                isNotNull: true,
+            }
+        ]
+    }
 
-        {
-            name: 'id',
-            type: 'INTEGER',
-            isNotNull: true,
-            isPrimaryKey: true,
-            isUnique: true,
-            // isAutoincrement: true  // Nota: I won't use autoincrement to handle ids in this example
-        },
-        {
-            name: 'title',
-            type: 'TEXT',
-            isNotNull: true
-        },
-        {
-            name: 'content',
-            type: 'TEXT',
-            isNotNull: true,
-        }
-
-    ])
-
-    constructor(dbHandler: DBHandler) {
     // ...
 ```
-
-Nota: there are only one primary key column authorized.
 
 Nota: here's the column typing:
 ```ts
@@ -118,17 +119,17 @@ Don't forget to create the `up()` and `down()` methods, the first one to set the
 
 ```ts
     public async up() {
-        this.dbHandler.createTable(this.table)
+        provider.createTable(this.table)
     }
     
     public async down() {
-        this.dbHandler.dropTable(this.tableName)
+        provider.dropTable(this.tableName)
     }
 ```
 
 ### Drop
 
-You can drop a table using `this.dbHandler.dropTable(this.tableName)`.
+You can drop a table using `provider.dropTable(this.tableName)`.
 
 ### Run migrations
 
@@ -141,9 +142,8 @@ So we import our migration into `src/app/migrations/index.ts` and we create a ne
 //...
 import { AddPostMigration } from "./add_post"
 
-const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "database.sqlite")
 const migrations: any = {
-    'add_post': new AddPostMigration(dbHandler)
+    'add_post': new AddPostMigration()
 }
 //...
 ```
@@ -177,17 +177,15 @@ You need to create a directory named `src/app/models` and you create a new file 
 Example: 
 <pre>post.ts</pre>
 ```ts
-import { BaseModel, DBHandler, Table } from "#database"
+import { BaseModel } from "#database"
 
 import { AddPostMigration } from "../migrations/add_post"
 
-const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "database.sqlite")
-
 export class Post extends BaseModel {
-    public static table: Table = (new AddPostMigration(dbHandler)).getTable()  // this is for avoid the rewriting of the table
+    public static table = (new AddPostMigration()).getTable()  // this is to avoid the rewriting of the table
 
-    // if your private key isn't 'id', change it there
-    protected idCol: string = 'your_private_key_column_name'
+    // if your (main) private key isn't 'id', change it there
+    protected idCol: string = 'your_main_private_key_column_name'
     
     // don't forget to declare the fields in the model
     declare id: string
@@ -206,21 +204,19 @@ There's many ways to get datas from database with this system.
 
 #### Model.find(id: string | number): Promise<BaseModel> (static)
 
-You can get an item with its primary key (id param is for the value, idCol is for the column name of the primary key, if it's not 'id').
+You can get an item with its primary key.
 
 #### Model.findBy(key: string, value: string, operator: Operator = '='): Promise<BaseModel[]> (static)
 
 You can get many items using this function (key param stands for the column name, the value stands for the value to be compared, and the operator stands for the operation between key and the value)
 
-#### Model.findMany(key: string, value: string, operator: Operator = '='): Promise<BaseModel[]> (static)
-
-Same as `Model.findBy()`
-
-#### Model.findWithSql(condition: string): Promise<BaseModel[]> (static)
+#### Model.findWithSql(condition: string): Promise<BaseModel[]> (static) (**depreciated**)
 
 Supposed to return an array of models selected with a SQL selection, `condition`.
 
 WARNING: escaping not provided. Consider this feature as experimental.
+
+Warning: depreciated. Instead use `provider.query()` (returns an instance of Knex).
 
 #### Model.findAll(): Promise<BaseModel[]> (static)
 
@@ -245,6 +241,7 @@ Let's have a demo:
     post.content = "."
 
     // right now my model ("post") isn't stocked in the db
+
     post.save()
 
     // now it is
@@ -349,3 +346,78 @@ Object.keys(seeders).forEach(key => BaseSeeder.runSeeder(key, seeders[key]))
 Then run `pnpm run run:seeders create_initial_post`.
 
 Nota: you must specify the seeder key to run the seeder.
+
+## Usage of the providers' API
+
+You might need to use the providers' API without models to create complex requests to your database.
+
+The databases providers are implementing ``DatabaseProviderInterface``:
+
+### connectDb(dbPath: string): void
+
+Connect the DB for interaction.
+
+### closeConnection(): void
+
+Closes the connection after transaction.
+
+### get db(): any | undefined
+
+Returns the DB object.
+
+### get dbPath(): string
+
+Returns the DB path.
+
+### createTable: (table: CreateTable) => void
+
+Permits to create a new table.
+
+### alterTable: (table: AlterTable) => void
+
+Permits to alter a table, usefull for migrations.
+
+Warning: not implemented yet.
+
+### dropTable: (table: Table) => void
+
+Drops a table.
+
+### async query<T extends ModelObject>(sql: string, params?: string[])
+
+It permits to run a query by specifying a raw SQL query to your DB.
+
+### select <T extends ModelObject> (table: Table, condition?: any): Promise<T[]>
+
+Runs a select query.
+
+Nota: if you want to select all columns, don't set the them on the ``table`` argument.
+
+Example:
+
+We have a ``posts`` table with these columns: ``id``, ``title``, ``content``.
+
+If we want to get all these columns, you can do :
+```ts
+    const posts = await provider.select((new AddPostsMigration()).getTable(), "..") // get the cols directly specifying the table
+
+    // OR
+
+    const posts = await provider.select({ name: "posts" }, "...")  // create a "new table" with only the name
+```
+
+### insert <T extends ModelObject> (table: Table, value: T): Promise<T>
+
+Runs an insert query.
+
+### update <T extends ModelObject> (table: Table, condition: any, value: T): Promise<T>
+
+Runs an update query.
+
+Nota: same remark as ``select``.
+
+### delete <T extends ModelObject> (table: Table, condition: any): Promise<T[]>
+
+Runs an delete query.
+
+Nota: same remark as ``select`` and ``update``.

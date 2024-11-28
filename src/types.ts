@@ -3,13 +3,13 @@ import { Middleware } from "./middleware"
 import { Request, Response } from "#lib/http"
 
 
-export type ModuleConfig = { [key: string]: any | any[] }
+export type ModuleConfig = Record<string, any | any[]>
 
 export type Config = {
     NODE_ENV: 'dev' | 'test' | 'production'
     globalMiddlewares: (typeof Middleware)[]
     SECRET_KEY: string
-    modules: Record<string,ModuleConfig>
+    modules: Record<string, ModuleConfig>
 }
 
 export type Cookie = {
@@ -25,9 +25,7 @@ export type Cookie = {
     sameSite?: "Strict" | "Lax" | "None"
 }
 
-export type Headers = {
-    [key: string]: string
-}
+export type Headers = Record<string, string>
 
 export type HttpContext = {
     req?: IncomingMessage
@@ -52,8 +50,6 @@ export type Route =
     | { callback: (httpContext: HttpContext) => Promise<Response>; controller?: never } & RouteOptional
     | { callback?: never; controller: [string, string] } & RouteOptional
 
-export type Routes = { [key: string]: Route }
+export type Routes = Record<string, Route>
 
-export type RouteParams = {
-    [key: string]: string
-}
+export type RouteParams = Record<string, string>

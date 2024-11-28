@@ -1,10 +1,9 @@
-import { escapeValue } from "./helpers"
+import { provider } from "./providers"
 import { handler } from "./proxy-handler"
-import { Table } from "./table"
-import type { ModelObject, Operator, Serialize } from "./types"
+import type { Conditions, ModelObject, Operator, Serialize, Table } from "./types"
 
 
-export class BaseModel {
+export default class BaseModel {
     protected data: ModelObject = {}
     protected idCol: string = 'id' // to change if you want to use another name
     public static table: Table
@@ -15,7 +14,7 @@ export class BaseModel {
 
     public static async create(options: ModelObject) {
         const model = new this()
-        model._setDatas(await model._getTable().add(options))
+        model._setDatas(await provider.insert(model._getTable(), options))
         return model
     }
 
@@ -23,13 +22,16 @@ export class BaseModel {
         const model = new this()
         let result
         try {
-            result = await model._getTable().get({ colName: model.idCol, value: `${id}` })
+            result = (await provider.select(
+                { name: model._getTable().name },
+                BaseModel._getKVCondition(model.idCol, id))
+            )[0]
         } catch (err) {
-            console.error(`[database] error: BaseModel.find() : ${err}`)
-            return undefined
+            throw new Error(`[database] error: BaseModel.find() : ${err}`)
         }
+
         model._setDatas(result)
-        return model
+        return result ? model : undefined
     }
 
     public static async findBy(key: string, value: string, operator: Operator = '='): Promise<BaseModel[]> {
@@ -38,10 +40,12 @@ export class BaseModel {
         let results: ModelObject[] = []
 
         try {
-            results = await model._getTable().getBy(`${escapeValue(key)} ${operator} '${escapeValue(value)}'`)
+            results = await provider.select(
+                { name: model._getTable().name },
+                BaseModel._getKVCondition(key, value)
+            )
         } catch (err) {
             console.error(`[database] error: BaseModel.findBy() : ${(err as Error).message}`)
-            return []
         }
         
         for (const result of results) {
@@ -54,17 +58,20 @@ export class BaseModel {
     }
 
     /** 
+     * @deprecated Use <db provider>.query() instead.
      * WARNING: this is not fully implemented.
      */
-    public static async findWithSql(condition: string): Promise<BaseModel[]> {
+    public static async findWithSql(condition: Conditions): Promise<BaseModel[]> {
         let models = []
         const model = new this()
-        const results = await model._getTable().getBy(condition)
+        const results = await provider.select({ name: model._getTable().name }, condition)
 
         for (const result of results) {
-            const _model = new this()
-            _model._setDatas(result)
-            models.push(_model)
+            if (result) {
+                const _model = new this()
+                _model._setDatas(result)
+                models.push(_model)
+            }
         }
 
         return models
@@ -73,12 +80,14 @@ export class BaseModel {
     public static async findAll(): Promise<BaseModel[]> {
         let models = []
         const model = new this()
-        const results = await model._getTable().getAll()
+        const results = await provider.select({ name: model._getTable().name }, {})
 
         for (const result of results) {
-            const _model = new this()
-            _model._setDatas(result)
-            models.push(_model)
+            if (result) {
+                const _model = new this()
+                _model._setDatas(result)
+                models.push(_model)
+            }
         }
 
         return models
@@ -122,15 +131,19 @@ export class BaseModel {
 
     /** save the item in the db after update */
     public async save(): Promise<void> {
-        this._getTable().update(
-            { colName: this.idCol, value: `${this.data[this.idCol]}` },
+        await provider.update(
+            { name: this._getTable().name },
+            BaseModel._getKVCondition(this.idCol, this.data[this.idCol]),
             this.data
         )
     }
 
     /** deletes the item in db */
     public async destroy() {
-        this._getTable().delete({ colName: this.idCol, value: `${this.data[this.idCol]}` })
+        await provider.delete(
+            { name: this._getTable().name },
+            BaseModel._getKVCondition(this.idCol, this.data[this.idCol])
+        )
     }
 
     /**
@@ -153,5 +166,11 @@ export class BaseModel {
 
     public _getTable() {
         return (this.constructor as typeof BaseModel).table
+    }
+
+    protected static _getKVCondition(key: string, value: string | number) {
+        const obj: Conditions = {}
+        obj[key] = value.toString()
+        return obj
     }
 }

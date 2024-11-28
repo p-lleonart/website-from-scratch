@@ -1,21 +1,19 @@
 import { CONFIG } from "#app/config"
-import { BaseModel, DBHandler, Table } from "#database"
+import { AddAuthTokenMigration } from "#auth/migrations/add_auth_tokens"
+import { BaseModel, provider, Table } from "#database"
 import { randomId } from "#helpers"
 import jwt from "jsonwebtoken"
-import { AddAuthTokenMigration } from "#auth/migrations/add_auth_tokens"
 import { User } from "./user"
 
 
 const AUTH_TOKEN_COOKIE_EXPIRES = CONFIG.modules.auth.TOKEN_COOKIE_EXPIRES
-
-const dbHandler = new DBHandler(CONFIG.modules.database.NAME)
 
 function generateAccessToken(id: string) {
     return jwt.sign({ id: id }, CONFIG.SECRET_KEY, { expiresIn: AUTH_TOKEN_COOKIE_EXPIRES })
 }
 
 export class AuthToken extends BaseModel {
-    public static table: Table = (new AddAuthTokenMigration(dbHandler)).getTable()
+    public static table: Table = (new AddAuthTokenMigration()).getTable()
 
     declare id: string
 
@@ -38,12 +36,14 @@ export class AuthToken extends BaseModel {
         const id = randomId('atk')
 
         const token = new AuthToken()
-        token._setDatas(await AuthToken.table.add({
-            id,
-            userId: options.userId,
-            token: generateAccessToken(options.userId),
-            expires: Date.now() + AUTH_TOKEN_COOKIE_EXPIRES
-        }))
+        token._setDatas(
+            await provider.insert(AuthToken.table, {
+                id,
+                userId: options.userId,
+                token: generateAccessToken(options.userId),
+                expires: Date.now() + AUTH_TOKEN_COOKIE_EXPIRES
+            })
+        )
 
         return token
     }

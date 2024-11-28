@@ -1,4 +1,2 @@
 
-export type Context = {
-    [key: string]: string | string[] | number | number[] | boolean | boolean[]
-}
+export type Context = Record<string, string | string[] | number | number[] | boolean | boolean[]>

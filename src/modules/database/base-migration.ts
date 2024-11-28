@@ -1,14 +1,9 @@
-import { DBHandler } from "./db-handler"
 import { existsSync, readFileSync, writeFileSync } from "fs"
-import { Table } from "./table"
-import { MigrationActions } from "./types"
+import { MigrationActions, Table } from "./types"
 
 export default abstract class BaseMigration {
     protected abstract table: Table
-    protected abstract tableName: string
     public static migrationsFilePath: string = "migrations.json"
-
-    constructor(protected dbHandler: DBHandler) {}
 
     public getTable() {
         return this.table

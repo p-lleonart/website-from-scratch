@@ -1,9 +1,9 @@
 import { CONFIG } from "#app/config"
+import { AddUserMigration } from "#auth/migrations/add_users"
 import { AuthToken } from "./auth_token"
 import { compareSync, genSaltSync, hashSync } from "bcrypt"
-import { BaseModel, DBHandler, Table } from "#database"
+import { BaseModel, provider, Table } from "#database"
 import { randomId } from "#helpers"
-import { AddUserMigration } from "#auth/migrations/add_users"
 import { Request, Response } from "#lib/http"
 import { HttpContext } from "#root/types"
 
@@ -12,10 +12,8 @@ const AUTH_TOKEN_COOKIE_NAME = CONFIG.modules.auth.TOKEN_COOKIE_NAME
 const AUTH_TOKEN_COOKIE_EXPIRES = CONFIG.modules.auth.TOKEN_COOKIE_EXPIRES
 const saltRounds = CONFIG.modules.auth.SALT_ROUNDS
 
-const dbHandler = new DBHandler(CONFIG.modules.database.NAME)
-
 export class User extends BaseModel {
-    public static table: Table = (new AddUserMigration(dbHandler)).getTable()
+    public static table: Table = (new AddUserMigration()).getTable()
 
     declare id: string
 
@@ -36,7 +34,12 @@ export class User extends BaseModel {
         const id = randomId('usr')
 
         const user = new User()
-        user._setDatas(await this.table.add({ id, name: options.name, email: options.email, password: hash}))
+        user._setDatas(
+            await provider.insert(
+                User.table, 
+                { id, name: options.name, email: options.email, password: hash}
+            )
+        )
         return user
     }
 

@@ -1,11 +1,10 @@
-import { BaseModel, DBHandler, Table } from "#database"
+import { BaseModel } from "#database"
 
 import { AddPostMigration } from "#app/migrations/add_post"
 
-const dbHandler = new DBHandler(process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "database.sqlite")
 
 export class Post extends BaseModel {
-    public static table: Table = (new AddPostMigration(dbHandler)).getTable()
+    public static table = (new AddPostMigration()).getTable()
 
     declare id: string
 

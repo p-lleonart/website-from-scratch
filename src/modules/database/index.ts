@@ -7,27 +7,30 @@
  * Maybe I'll do the refactor when the v22 will be LTS.
  */
 
-import { BaseModel } from "./base-model"
-import BaseSeeder from "./base-seeder"
-import { DBHandler } from "./db-handler"
-import { verifyCreateTableParams, getColumnsAsString, escapeValue } from "./helpers"
 import BaseMigration from "./base-migration"
-import { Table } from "./table"
+import BaseModel from "./base-model"
+import BaseSeeder from "./base-seeder"
+import { provider, SQLiteDatabaseProvider } from "./providers"
 import type {
+    AlterTable,
     Column,
-    DBHandlerInterface,
+    CreateTable,
+    MigrationActions,
     ModelObject,
     Operator,
-    SqlOperator,
     PrimaryKey,
-    AlterTable,
-    Serialize
+    Serialize,
+    SqlOperator,
+    Table
 } from "./types"
 import { ModuleConfig } from "#root/types"
 
 
 type DatabaseConfig = ModuleConfig & {
-    NAME: string
+    NAME: string,
+    PATH: string,
+    PROVIDER: "sqlite" | "postgresql"
+    DB_CONFIG?: any
 } 
 
 export {
@@ -36,16 +39,15 @@ export {
     BaseModel,
     BaseSeeder,
     Column,
+    CreateTable,
     DatabaseConfig,
-    DBHandler,
-    DBHandlerInterface,
-    escapeValue,
-    getColumnsAsString,
-    Table,
+    MigrationActions,
     ModelObject,
     Operator,
     PrimaryKey,
+    provider,
     Serialize,
+    SQLiteDatabaseProvider,
     SqlOperator,
-    verifyCreateTableParams
+    Table,
 }

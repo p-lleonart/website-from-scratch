@@ -1,4 +1,3 @@
-import { Database } from "sqlite3"
 
 export type Column = {
     name: string
@@ -11,16 +10,7 @@ export type Column = {
     isUnique?: boolean
 }
 
-export interface DBHandlerInterface {
-    connectDb(dbPath: string): Database
-    closeConnection(): void
-    getDb(): Database | undefined
-    getDbPath(): string
-}
-
-export type ModelObject = {
-    [key: string]: string | number
-}
+export type ModelObject = Record<string, string | number>
 
 export type Operator = '=' | '<>' | '!=' | '<' | '>' | '<=' | '>='
 
@@ -33,14 +23,44 @@ export type PrimaryKey = {
     value: string
 }
 
-export type AlterTable = {
-    name?: string,
+export type Table = {
+    name: string,
     columns?: Column[]
 }
 
-export type Serialize = {
-    [keys: string]: {
-        serializeAs?: string
-        doSerialize?: (value: string | number) => string
-    }
+export type Conditions = Record<string, string>
+
+export type CreateTable = {
+    name: string,
+    columns: Column[]
+}
+
+export type AlterTable = {
+    name: string,
+    newName?: string,
+    columns?: Column[]
+}
+
+type SerializeItem = {
+    serializeAs?: string
+    doSerialize?: (value: string | number) => string
+}
+
+export type Serialize = Record<string, SerializeItem>
+
+export interface DatabaseProviderInterface {
+    connectDb(dbPath: string): void
+    closeConnection(): void
+    get db(): any | undefined
+    get dbPath(): string
+    
+    createTable: (table: CreateTable) => void
+    alterTable: (table: AlterTable) => void
+    dropTable: (table: Table) => void
+
+    query (table: Table): any
+    select <T extends ModelObject> (table: Table, condition: Conditions): Promise<T[]>
+    insert <T extends ModelObject> (table: Table, value: T): Promise<T>
+    update <T extends ModelObject> (table: Table, condition: Conditions, value: T): Promise<T>
+    delete <T extends ModelObject> (table: Table, condition: Conditions): Promise<T[]>
 }

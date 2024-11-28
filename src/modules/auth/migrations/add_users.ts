@@ -1,42 +1,42 @@
-import { BaseMigration, DBHandler, Table } from "#database"
+import { BaseMigration, CreateTable, provider, Table } from "#database"
+
 
 export class AddUserMigration extends BaseMigration {
     protected tableName = "users"
-    protected table = new Table(this.dbHandler.getDbPath(), this.tableName, [
-        {
-            name: 'id',
-            type: 'TEXT',
-            isNotNull: true,
-            isPrimaryKey: true,
-            isUnique: true
-        },
-        {
-            name: 'name',
-            type: 'TEXT',
-            isNotNull: true
-        },
-        {
-            name: 'email',
-            type: 'TEXT',
-            isNotNull: true,
-            isUnique: true
-        },
-        {
-            name: 'password',
-            type: 'TEXT',
-            isNotNull: true
-        }
-    ])
-
-    constructor(dbHandler: DBHandler) {
-        super(dbHandler)
+    protected table: Table = {
+        name: "users",
+        columns: [
+            {
+                name: 'id',
+                type: 'TEXT',
+                isNotNull: true,
+                isPrimaryKey: true,
+                isUnique: true
+            },
+            {
+                name: 'name',
+                type: 'TEXT',
+                isNotNull: true
+            },
+            {
+                name: 'email',
+                type: 'TEXT',
+                isNotNull: true,
+                isUnique: true
+            },
+            {
+                name: 'password',
+                type: 'TEXT',
+                isNotNull: true
+            }
+        ]
     }
 
     public async up() {
-        this.dbHandler.createTable(this.table)
+        provider.createTable(this.table as CreateTable)
     }
 
     public async down() {
-        this.dbHandler.dropTable(this.tableName)
+        provider.dropTable(this.table)
     }
 }

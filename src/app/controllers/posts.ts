@@ -97,7 +97,7 @@ export class PostController extends BaseController {
         const post = await Post.find(postId) as Post
         post.title = body.title ? body.title : post.title
         post.content = body.content ? body.content : post.content
-
+        await post.save()
 
         return response.setResponse({
             contentType: "application/json",

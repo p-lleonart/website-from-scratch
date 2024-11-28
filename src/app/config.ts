@@ -32,7 +32,16 @@ export const CONFIG: Config = {
         },
         
         database: {
-            NAME: env.DATABASE_NAME ?? "database.sqlite"
+            NAME: env.DATABASE_NAME ?? "database.sqlite",
+            PATH: env.DATABASE_PATH ?? "database.sqlite",
+            PROVIDER: env.DATABASE_PROVIDER ?? "sqlite",
+            CONFIG: {
+                user: env.DATABASE_USER ?? 'localhost',
+                host: env.DATABASE_HOST ?? 'localhost',
+                database: env.DATABASE_NAME ?? "database.db",
+                password: env.DATABASE_PASSWORD ?? "",
+                port: env.DATABASE_PORT ?? 5432,
+            }
         },
         
         sessions: {

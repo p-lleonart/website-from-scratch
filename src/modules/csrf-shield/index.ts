@@ -8,7 +8,8 @@ import { HttpContext, ModuleConfig } from "#root/types"
 declare module "#lib/http" {
     interface Response {
         generateCsrfToken: (request: Request) => string
-        setCsrfCookie: (HttpContext: HttpContext, token: string) => Response
+        setCsrfCookie: (httpContext: HttpContext, token: string) => Response
+        setCsrfHeader: (httpContext: HttpContext, token: string) => Response
         csrfHTMLInput: (token: string) => string
     }
 }
@@ -20,6 +21,11 @@ Response.prototype.generateCsrfToken = function (request: Request) {
 
 Response.prototype.setCsrfCookie = function (httpContext: HttpContext, token: string) {
     return setCsrfCookie(httpContext, token)
+}
+
+Response.prototype.setCsrfHeader = function ({ response }: HttpContext, token: string) {
+    response.setHeader(CONFIG.modules.csrfShield.TOKEN_HEADER_NAME, token)
+    return response
 }
 
 Response.prototype.csrfHTMLInput = function (token: string) {
