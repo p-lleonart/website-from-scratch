@@ -1,12 +1,13 @@
 import { type Context, render } from "#template-parser"
 import { existsSync } from "node:fs"
 import type { ResponseContext, Headers } from "#root/types"
+import { ResponseBody } from "./types"
 
 
 export class Response {
     #statusCode: number
     #headers: Headers
-    #body: string
+    #body: ResponseBody
     #sendAfterMiddleware: boolean = false
     #context: ResponseContext
 
@@ -35,7 +36,7 @@ export class Response {
 
     public setResponse(options: {
         contentType: string,
-        body: string,
+        body: ResponseBody,
         statusCode?: number,
     }) {
         if (options.statusCode) this.statusCode = options.statusCode
@@ -50,13 +51,13 @@ export class Response {
     }
 
     public setErrorResponse(options: {
-        body?: string,
+        body?: ResponseBody,
         context?: Context,
         contentType?: string,
         statusCode: number,
         statusMessage: string
     }) {
-        let body: string
+        let body: ResponseBody
         let contentType: string
         if (options.body && options.contentType) {
             body = options.body
@@ -98,7 +99,7 @@ export class Response {
         this.#headers[headerName] = value
     }
 
-    set body(body: string) {
+    set body(body: ResponseBody) {
         this.#body = body
     }
 

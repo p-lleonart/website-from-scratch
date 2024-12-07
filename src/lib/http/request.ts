@@ -1,14 +1,17 @@
 import { CookieHandler } from "./cookie-handler"
 import { IncomingMessage } from "http"
-import { parseRequestData } from "#helpers"
+import { Form } from "#root/types"
 import { RouteParams } from "#root/types"
+import { ExtractBodyInterface, RequestBody, RequestFiles } from "./types"
 
 /**
  * this is a draft actually
  */
 export class Request {
-    #body: { [key: string]: string }
+    #body: RequestBody
     #cookieHandler: CookieHandler
+    #files: RequestFiles
+    #formStatus: string = "ok"
     #query: URLSearchParams
     #params: RouteParams = {}
 
@@ -18,22 +21,34 @@ export class Request {
      */
     private constructor(
         private req: IncomingMessage,
-        body: { [key: string]: string }
+        body: RequestBody,
+        files: RequestFiles,
+        formStatus?: string,
     ) {
         this.#body = body
         this.#cookieHandler = new CookieHandler(this)
+        this.#files = files
         this.#query = (this.url(true) as URL).searchParams
+
+        if (formStatus) this.#formStatus = formStatus
     }
 
-    public static async init(req: IncomingMessage) {
-        const body = parseRequestData(await Request.extractPostRequestData(req))
+    public static async init(form: Form, req: IncomingMessage) {
+        let body
+        try{
+            body = await Request.extractPostRequestData(form, req)
+        } catch (err: any) {
+            return new Request(req, {}, {}, err)
+        }
+
         return new Request(
             req,
-            body
+            body.fields,
+            body.files
         )
     }
 
-    set body(body: { [key: string]: string }) {
+    set body(body: RequestBody) {
         this.#body = body
     }
 
@@ -43,6 +58,14 @@ export class Request {
 
     get cookieHandler(): CookieHandler {
         return this.#cookieHandler
+    }
+
+    get files(): RequestFiles {
+        return this.#files
+    }
+
+    get formStatus(): string {
+        return this.#formStatus
     }
 
     get params(): RouteParams {
@@ -78,17 +101,31 @@ export class Request {
         return this.req.url
     }
 
-    private static async extractPostRequestData(req: IncomingMessage): Promise<string> {
-        return await new Promise<string>((resolve, reject) => {
-            let _body: string = ""
+    private static async extractPostRequestData(form: Form, req: IncomingMessage): Promise<ExtractBodyInterface> {
+        return new Promise(async (resolve, reject) => {
+            let fields: Record<string, string[] | undefined> = {},
+                files: RequestFiles = {},
+                formattedFields: RequestBody = {}
+            
+            try {
+                [fields, files] = await form.incomingForm.parse(req)
+            } catch (err: any) {
+                if (form.errorHandler) {
+                    reject(form.errorHandler(err))
+                }
     
-            req.on('data', chunk => {
-                _body += chunk.toString()
-            })
-          
-            req.on('end', () => {
-                resolve(_body)
-            })
+                console.error(`[request parsing] error: ${err.message}`)
+                reject(err.message)
+            }
+    
+            /** we are only selecting the first value of each field */
+            for (const item of Object.keys(fields)) {
+                if (fields[item]) {
+                    formattedFields[item] = fields[item][0]
+                }
+            }
+    
+            resolve({ fields: formattedFields, files })
         })
     }
 }

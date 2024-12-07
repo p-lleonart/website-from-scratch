@@ -1,3 +1,4 @@
+import { CONFIG } from "./app/config"
 import { setAssetsRoutes } from "./helpers"
 import { getEndpoint, runController, runMiddlewares, runView, setupControllers, setupRoutes } from "./helpers/server"
 import { createServer, IncomingMessage, ServerResponse } from "http"
@@ -19,39 +20,49 @@ const controllers = await setupControllers()
 createServer(async (req: IncomingMessage, res: ServerResponse) => {
     let httpContext: HttpContext = {
         req,
-        request: await Request.init(req),
+        request: await Request.init(CONFIG.form, req),
         response: new Response()
     }
 
     /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
     const endpoint = getEndpoint(ROUTES, req.method, httpContext.request)
 
-    try {
-        if(ROUTES[endpoint] !== undefined) {
-            const route = ROUTES[endpoint]
+    if (httpContext.request.formStatus === "ok") {
+        try {
+            if(ROUTES[endpoint] !== undefined) {
+                const route = ROUTES[endpoint]
 
-            /** response context is by default on "middleware" */
+                /** response context is by default on "middleware" */
 
-            if (route.middlewares && route.middlewares.length > 0) {
-                httpContext = await runMiddlewares(httpContext, route)
+                if (route.middlewares && route.middlewares.length > 0) {
+                    httpContext = await runMiddlewares(httpContext, route)
+                }
+
+                httpContext.response._changeContext("route")
+
+                if (httpContext.response.shouldRunRouteCallback()) {
+                    httpContext.response = await runView(httpContext, controllers, route)
+                }
+            } else {  // HTTP 404
+                httpContext.response = await runController(httpContext, controllers, ["ErrorsController", "notFound"])
             }
-
-            httpContext.response._changeContext("route")
-
-            if (httpContext.response.shouldRunRouteCallback()) {
-                httpContext.response = await runView(httpContext, controllers, route)
-            }
-        } else {  // HTTP 404
-            httpContext.response = await runController(httpContext, controllers, ["ErrorsController", "notFound"])
+        } catch (e: any) {  // HTTP 500
+            httpContext.response = await runController(
+                httpContext,
+                controllers,
+                ["ErrorsController", "serverError"],
+                { name: e.name, message: e.message, stack: e.stack }
+            )
         }
-    } catch (e: any) {  // HTTP 500
+    } else {
         httpContext.response = await runController(
             httpContext,
             controllers,
-            ["ErrorsController", "serverError"],
-            { name: e.name, message: e.message, stack: e.stack }
+            ["ErrorsController", "badRequest"],
+            { message: httpContext.request.formStatus }
         )
     }
+
     
     console.log(`[${endpoint}] ${httpContext.response.statusCode}`)
 

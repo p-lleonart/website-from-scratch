@@ -11,7 +11,7 @@ export class CookieHandler {
     /**
      * Returns an object containing all cookies names with their values.
      */
-    public getCookies(): {[key: string]: string} {
+    public getCookies(): Record<string, string> {
         return parseCookieData(this.request.headers.cookie)
     }
 

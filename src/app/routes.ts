@@ -89,4 +89,9 @@ export const ROUTES: Routes = {
     // TEST FOR DI
     "GET:/testdi": { controller: ["TestDIController", "myView"] },
     "GET:/testdi2": { controller: ["TestDI2Controller", "myView"] },
+
+    // TEST FOR FILES
+    "GET:/file": { controller: ["FileTestController", "upload"] },
+    "POST:/file": { controller: ["FileTestController", "store"] },
+    "GET:/file/:id": { controller: ["FileTestController", "view"] },
 }

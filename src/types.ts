@@ -1,3 +1,5 @@
+import IncomingForm from "formidable/Formidable"
+
 import { IncomingMessage } from "http"
 import { Middleware } from "./middleware"
 import { Request, Response } from "#lib/http"
@@ -9,6 +11,7 @@ export type Config = {
     NODE_ENV: 'dev' | 'test' | 'production'
     globalMiddlewares: (typeof Middleware)[]
     SECRET_KEY: string
+    form: Form
     modules: Record<string, ModuleConfig>
 }
 
@@ -23,6 +26,11 @@ export type Cookie = {
     path?: string
     secure?: boolean
     sameSite?: "Strict" | "Lax" | "None"
+}
+
+export type Form = {
+    incomingForm: IncomingForm
+    errorHandler?: (err: any) => string
 }
 
 export type Headers = Record<string, string>

@@ -301,3 +301,17 @@ export class TestDIController extends BaseController {
     }
 }
 ```
+
+## Install modules
+
+Install the plugin via your package manager.
+
+Add a new field in `CONFIG` in `app/config.ts` and add the required types.
+
+## Module development
+
+In the `index.ts` of the module, you have to specify a config for your module:
+
+```ts
+type YourModuleConfig = ModuleConfig & { /* your fields here */}
+```

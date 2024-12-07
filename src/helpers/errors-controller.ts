@@ -49,4 +49,12 @@ export class ErrorsController extends BaseController {
             statusCode: 500
         })
     }
+
+    public async badRequest({ response }: HttpContext, options: { message: string }) {
+        return response.setResponse({
+            body: await ErrorsController.getTemplateProcess(500, `<h3>400: bad request</h3><p>Your request is invalid : ${options.message}</p>`),
+            contentType: "text/html",
+            statusCode: 400
+        }) 
+    }
 }

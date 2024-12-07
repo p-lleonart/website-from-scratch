@@ -41,14 +41,3 @@ export function parseCookieData(raw: string | undefined): {[key: string]: string
     
     return parseBase("; ", "=", raw)
 }
-
-/**
- * Parses request body.
- * 
- * E.g: data1=value1&data2=value2
- * @param raw 
- * @returns 
- */
-export function parseRequestData(raw: string): {[key: string]: string} {
-    return parse(raw) as {[key: string]: string}
-}
