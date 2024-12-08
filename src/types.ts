@@ -13,6 +13,7 @@ export type Config = {
     globalMiddlewares: (typeof Middleware)[]
     SECRET_KEY: string
     port: number
+    https?: HttpsCredentials
     form: Form
     modules: Record<string, ModuleConfig>
 }
@@ -40,6 +41,11 @@ export type HttpContext = {
     req?: IncomingMessage
     request: Request
     response: Response
+}
+
+export type HttpsCredentials = {
+    key: string
+    cert: string
 }
 
 export type ResponseContext = 'middleware' | 'route'

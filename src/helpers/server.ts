@@ -1,3 +1,6 @@
+import { IncomingMessage, ServerResponse } from "http"
+import formidable from "formidable"
+
 import { CONFIG } from "#app/config"
 import { ErrorsController } from "./errors-controller"
 import { instanciateGlobalMiddlewareList } from "./internals"
@@ -28,6 +31,73 @@ export function getEndpoint(routes: Routes, method: string | undefined, request:
     }
 
     return `${method}:${path}`
+}
+
+export async function requestListener(req: IncomingMessage, res: ServerResponse, routes: Routes, controllers: Controllers) {
+    const form = {
+        incomingForm: formidable(CONFIG.form.formOptions ?? {}),
+        errorHandler: CONFIG.form.errorHandler
+    }
+
+    let httpContext: HttpContext = {
+        req,
+        request: await Request.init(form, req),
+        response: new Response()
+    }
+
+    let error: Error | undefined
+
+    /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
+    const endpoint = getEndpoint(routes, req.method, httpContext.request)
+
+    if (httpContext.request.formStatus === "ok") {
+        try {
+            if(routes[endpoint] !== undefined) {
+                const route = routes[endpoint]
+
+                /** response context is by default on "middleware" */
+                if (route.middlewares && route.middlewares.length > 0) {
+                    httpContext = await runMiddlewares(httpContext, route)
+                }
+
+                httpContext.response._changeContext("route")
+
+                if (httpContext.response.shouldRunRouteCallback()) {
+                    httpContext.response = await runView(httpContext, controllers, route)
+                }
+            } else {  // HTTP 404
+                httpContext.response = await runController(httpContext, controllers, ["ErrorsController", "notFound"])
+            }
+        } catch (e: any) {  // HTTP 500
+            httpContext.response = await runController(
+                httpContext,
+                controllers,
+                ["ErrorsController", "serverError"],
+                { name: e.name, message: e.message, stack: e.stack }
+            )
+            error = e
+        }
+    } else {  // HTTP 400
+        httpContext.response = await runController(
+            httpContext,
+            controllers,
+            ["ErrorsController", "badRequest"],
+            { message: httpContext.request.formStatus }
+        )
+        error = new Error("badRequest")
+    }
+
+    
+    console.log(`[${endpoint}] ${httpContext.response.statusCode}`)
+
+    if (error) {
+        console.log(`\n\n\t${error.stack}\n\n`)
+    }
+
+    res.writeHead(httpContext.response.statusCode, httpContext.response.headers)
+    res.write(httpContext.response.body)
+
+    res.end()
 }
 
 export async function runController(
