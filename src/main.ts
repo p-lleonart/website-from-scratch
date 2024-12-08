@@ -19,7 +19,7 @@ const ROUTES = setupRoutes(await setAssetsRoutes(_ROUTES))
 /** load controllers */
 const controllers = await setupControllers()
 
-createServer(async (req: IncomingMessage, res: ServerResponse) => {
+const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
     const form = {
         incomingForm: formidable(CONFIG.form.formOptions ?? {}),
         errorHandler: CONFIG.form.errorHandler
@@ -30,6 +30,8 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
         request: await Request.init(form, req),
         response: new Response()
     }
+
+    let error: Error | undefined
 
     /** if the url as a '/' at the end, remove it (to avoid 404 for defined routes) */
     const endpoint = getEndpoint(ROUTES, req.method, httpContext.request)
@@ -60,6 +62,7 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
                 ["ErrorsController", "serverError"],
                 { name: e.name, message: e.message, stack: e.stack }
             )
+            error = e
         }
     } else {
         httpContext.response = await runController(
@@ -68,16 +71,22 @@ createServer(async (req: IncomingMessage, res: ServerResponse) => {
             ["ErrorsController", "badRequest"],
             { message: httpContext.request.formStatus }
         )
+        error = new Error("badRequest")
     }
 
     
     console.log(`[${endpoint}] ${httpContext.response.statusCode}`)
+
+    if (error) {
+        console.log(`\n\n\t${error.stack}\n\n`)
+    }
 
     res.writeHead(httpContext.response.statusCode, httpContext.response.headers)
     res.write(httpContext.response.body)
 
     res.end()
 })
-    .listen(3000)
 
-console.log("Server starting...")
+server.listen(CONFIG.port)
+
+console.log(`Server starting on port ${CONFIG.port}...`)

@@ -6,6 +6,8 @@ import { SessionMiddleware } from "#sessions"
 
 
 export const CONFIG: Config = {
+    port: 3000,
+
     /**
      * Configure middlewares that will be executed on each routes.
      * 

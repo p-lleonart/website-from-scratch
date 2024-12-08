@@ -12,6 +12,7 @@ const knex = Knex({
         filename: `file:${CONFIG.modules.database.PATH}`,
         flags: ['OPEN_URI', 'OPEN_SHAREDCACHE'],
     },
+    useNullAsDefault: true,
 })
 
 export default class SQLiteDatabaseProvider implements DatabaseProviderInterface {

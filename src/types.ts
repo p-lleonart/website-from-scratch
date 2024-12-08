@@ -12,6 +12,7 @@ export type Config = {
     NODE_ENV: 'dev' | 'test' | 'production'
     globalMiddlewares: (typeof Middleware)[]
     SECRET_KEY: string
+    port: number
     form: Form
     modules: Record<string, ModuleConfig>
 }
