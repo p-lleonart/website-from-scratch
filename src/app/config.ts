@@ -1,7 +1,8 @@
+import { errors as formidableErrors } from "formidable"
+
 import { env } from "#root/env"
 import type { Config } from "#root/types"
 import { SessionMiddleware } from "#sessions"
-import formidable, { errors as formidableErrors } from "formidable"
 
 
 export const CONFIG: Config = {
@@ -22,11 +23,11 @@ export const CONFIG: Config = {
      * For more information, please refer to Formidable's documentation (``formidable.Options``).
      */
     form: {
-        incomingForm: formidable({
+        formOptions: {
             encoding: "utf-8",
             keepExtensions: true,
             uploadDir: "tmp/uploads",
-        }),
+        },
 
 
         /**

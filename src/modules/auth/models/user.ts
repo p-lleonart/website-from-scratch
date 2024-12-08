@@ -1,7 +1,8 @@
+import { hash, verify } from "argon2"
+
 import { CONFIG } from "#app/config"
 import { AddUserMigration } from "#auth/migrations/add_users"
 import { AuthToken } from "./auth_token"
-import { compareSync, genSaltSync, hashSync } from "bcrypt"
 import { BaseModel, provider, Table } from "#database"
 import { randomId } from "#helpers"
 import { Request, Response } from "#lib/http"
@@ -29,15 +30,14 @@ export class User extends BaseModel {
             throw Error("Email already taken")
         }
 
-        const salt = genSaltSync(saltRounds)
-        const hash = hashSync(options.password, salt)
+        const hashedPsw = await hash(options.password, { salt: saltRounds })
         const id = randomId('usr')
 
         const user = new User()
         user._setDatas(
             await provider.insert(
                 User.table, 
-                { id, name: options.name, email: options.email, password: hash}
+                { id, name: options.name, email: options.email, password: hashedPsw}
             )
         )
         return user
@@ -47,7 +47,7 @@ export class User extends BaseModel {
         const user = (await User.findBy("email", email))[0] as User
         if (!user) throw Error("User doesn't exist")
         
-        const match = compareSync(password, user.password as string)
+        const match = await verify(user.password as string, password)
 
         if (match) return user
 

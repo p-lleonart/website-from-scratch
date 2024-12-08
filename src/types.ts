@@ -1,3 +1,4 @@
+import { Options } from "formidable"
 import IncomingForm from "formidable/Formidable"
 
 import { IncomingMessage } from "http"
@@ -28,10 +29,9 @@ export type Cookie = {
     sameSite?: "Strict" | "Lax" | "None"
 }
 
-export type Form = {
-    incomingForm: IncomingForm
-    errorHandler?: (err: any) => string
-}
+export type Form = 
+    | { formOptions?: never, incomingForm: IncomingForm, errorHandler?: (err: any) => string }
+    | { formOptions: Options, incomingForm?: never, errorHandler?: (err: any) => string }
 
 export type Headers = Record<string, string>
 

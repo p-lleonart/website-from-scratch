@@ -1,3 +1,5 @@
+import formidable from "formidable"
+
 import { CONFIG } from "./app/config"
 import { setAssetsRoutes } from "./helpers"
 import { getEndpoint, runController, runMiddlewares, runView, setupControllers, setupRoutes } from "./helpers/server"
@@ -18,9 +20,14 @@ const ROUTES = setupRoutes(await setAssetsRoutes(_ROUTES))
 const controllers = await setupControllers()
 
 createServer(async (req: IncomingMessage, res: ServerResponse) => {
+    const form = {
+        incomingForm: formidable(CONFIG.form.formOptions ?? {}),
+        errorHandler: CONFIG.form.errorHandler
+    }
+
     let httpContext: HttpContext = {
         req,
-        request: await Request.init(CONFIG.form, req),
+        request: await Request.init(form, req),
         response: new Response()
     }
 
